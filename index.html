@@ -1079,10 +1079,10 @@ html.dark .chat-bubble.bot { background: rgba(241,228,207,0.08); }
     <p id="promo-msg" class="text-xs hidden"></p>
 
     <div class="space-y-1 font-mono text-sm">
-      <div class="flex justify-between"><span>Subtotal</span><span id="cart-subtotal">$0.00</span></div>
-      <div class="flex justify-between"><span>Discount</span><span id="cart-discount">-$0.00</span></div>
+      <div class="flex justify-between"><span>Subtotal</span><span id="cart-subtotal">Ugx 0</span></div>
+      <div class="flex justify-between"><span>Discount</span><span id="cart-discount">-Ugx 0</span></div>
       <div class="flex justify-between"><span id="cart-fee-label">Delivery Fee</span><span id="cart-fee">$0.00</span></div>
-      <div class="flex justify-between text-base font-bold border-t border-bark/10 dark:border-parchment/10 pt-2 mt-2"><span>Total</span><span id="cart-total">$0.00</span></div>
+      <div class="flex justify-between text-base font-bold border-t border-bark/10 dark:border-parchment/10 pt-2 mt-2"><span>Total</span><span id="cart-total">Ugx 0</span></div>
     </div>
 
     <button id="checkout-btn" class="w-full bg-caramel hover:bg-rust text-cream font-semibold py-4 rounded-full transition-all duration-300 hover:shadow-warm">
@@ -1421,7 +1421,7 @@ function renderMenu() {
       <div class="pt-4 pb-4">
         <div class="flex items-start justify-between gap-3">
           <h3 class="font-display font-semibold text-lg leading-tight">${item.name}</h3>
-          <span class="ticket-price shrink-0">$${item.price.toFixed(2)}</span>
+          <span class="ticket-price shrink-0">Ugx ${item.price.toFixed(2)}</span>
         </div>
         <p class="text-sm mt-1.5 text-bark/65 dark:text-parchment/65">${item.desc}</p>
       </div>
@@ -1448,7 +1448,7 @@ function renderSpecials() {
       <div>
         <p class="font-display font-semibold">${item.name}</p>
         <p class="text-xs mt-1 text-cream/70">${item.desc}</p>
-        <p class="ticket-price text-ember mt-1">$${item.price.toFixed(2)}</p>
+        <p class="ticket-price text-ember mt-1">Ugx ${item.price.toFixed(2)}</p>
       </div>
     </div>
   `).join('');
@@ -1519,7 +1519,7 @@ function renderCart() {
       <div class="flex items-center justify-between gap-3 pb-4 border-b border-bark/10 dark:border-parchment/10">
         <div class="flex-1">
           <p class="font-semibold text-sm">${c.name}</p>
-          <p class="text-xs font-mono text-bark/60 dark:text-parchment/60 mt-0.5">$${c.price.toFixed(2)} each</p>
+          <p class="text-xs font-mono text-bark/60 dark:text-parchment/60 mt-0.5">Ugx ${c.price.toFixed(2)} each</p>
         </div>
         <div class="qty-control">
           <button class="qty-btn" data-cart-action="dec" data-id="${c.id}" aria-label="Decrease quantity">−</button>
@@ -1541,11 +1541,11 @@ function recalcTotals() {
   const fee = state.fulfilment === 'delivery' && subtotal > 0 ? DELIVERY_FEE : 0;
   const total = Math.max(0, subtotal - discount + fee);
 
-  document.getElementById('cart-subtotal').textContent = `$${subtotal.toFixed(2)}`;
-  document.getElementById('cart-discount').textContent = `-$${discount.toFixed(2)}`;
+  document.getElementById('cart-subtotal').textContent = `Ugx ${subtotal.toFixed(2)}`;
+  document.getElementById('cart-discount').textContent = `-Ugx ${discount.toFixed(2)}`;
   document.getElementById('cart-fee-label').textContent = state.fulfilment === 'delivery' ? 'Delivery Fee' : 'Pickup Fee';
-  document.getElementById('cart-fee').textContent = `$${fee.toFixed(2)}`;
-  document.getElementById('cart-total').textContent = `$${total.toFixed(2)}`;
+  document.getElementById('cart-fee').textContent = `Ugx ${fee.toFixed(2)}`;
+  document.getElementById('cart-total').textContent = `Ugx ${total.toFixed(2)}`;
 }
 
 function openCart() {
