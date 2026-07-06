@@ -428,7 +428,7 @@ html.dark .chat-bubble.bot { background: rgba(241,228,207,0.08); }
     <!-- OVERVIEW -->
     <section id="panel-overview" class="panel active space-y-8">
       <div class="grid sm:grid-cols-2 lg:grid-cols-4 gap-5">
-        <div class="stat-card"><p class="text-xs opacity-60 font-mono uppercase">Today's Revenue</p><p class="font-display text-3xl font-semibold mt-2">$1,284</p><p class="text-xs text-green-600 mt-1">↑ 12% vs yesterday</p></div>
+        <div class="stat-card"><p class="text-xs opacity-60 font-mono uppercase">Today's Revenue</p><p class="font-display text-3xl font-semibold mt-2">Ugx 1,284</p><p class="text-xs text-green-600 mt-1">↑ 12% vs yesterday</p></div>
         <div class="stat-card"><p class="text-xs opacity-60 font-mono uppercase">Orders Today</p><p class="font-display text-3xl font-semibold mt-2">96</p><p class="text-xs text-green-600 mt-1">↑ 8% vs yesterday</p></div>
         <div class="stat-card"><p class="text-xs opacity-60 font-mono uppercase">Reservations Today</p><p class="font-display text-3xl font-semibold mt-2">21</p><p class="text-xs opacity-60 mt-1">6 pending confirmation</p></div>
         <div class="stat-card"><p class="text-xs opacity-60 font-mono uppercase">Current Occupancy</p><p class="font-display text-3xl font-semibold mt-2">18/40</p><p class="text-xs text-amber-600 mt-1">Moderate</p></div>
@@ -490,9 +490,9 @@ html.dark .chat-bubble.bot { background: rgba(241,228,207,0.08); }
         <table>
           <thead><tr><th>Order</th><th>Customer</th><th>Type</th><th>Total</th><th>Status</th></tr></thead>
           <tbody>
-            <tr><td class="font-mono">#EO-48213</td><td>Priya N.</td><td>Delivery</td><td>$24.50</td><td><span class="badge badge-amber">Preparing</span></td></tr>
-            <tr><td class="font-mono">#EO-48212</td><td>Daniel K.</td><td>Pickup</td><td>$11.00</td><td><span class="badge badge-green">Ready</span></td></tr>
-            <tr><td class="font-mono">#EO-48211</td><td>Wanjiru M.</td><td>Delivery</td><td>$32.90</td><td><span class="badge badge-gray">Delivered</span></td></tr>
+            <tr><td class="font-mono">#EO-48213</td><td>Priya N.</td><td>Delivery</td><td>Ugx 24.50</td><td><span class="badge badge-amber">Preparing</span></td></tr>
+            <tr><td class="font-mono">#EO-48212</td><td>Daniel K.</td><td>Pickup</td><td>Ugx 11.00</td><td><span class="badge badge-green">Ready</span></td></tr>
+            <tr><td class="font-mono">#EO-48211</td><td>Wanjiru M.</td><td>Delivery</td><td>Ugx 32.90</td><td><span class="badge badge-gray">Delivered</span></td></tr>
           </tbody>
         </table>
       </div>
@@ -540,12 +540,12 @@ html.dark .chat-bubble.bot { background: rgba(241,228,207,0.08); }
 
   // Demo menu table, mirrors app.js MENU_DATA shape loosely
   const demoMenu = [
-    { name: 'Single-Origin Espresso', cat: 'Coffee', price: '$3.50', status: 'Active' },
-    { name: 'Spiced Chai Latte', cat: 'Tea', price: '$4.50', status: 'Active' },
-    { name: 'Sourdough Avocado Toast', cat: 'Breakfast', price: '$8.50', status: 'Active' },
-    { name: 'Braised Short Rib Plate', cat: 'Dinner', price: '$18.00', status: 'Active' },
-    { name: 'Cardamom Honey Latte', cat: 'Seasonal', price: '$5.50', status: 'Seasonal' },
-    { name: 'Spiced Pumpkin Scone', cat: 'Seasonal', price: '$4.00', status: 'Out of Stock' },
+    { name: 'Single-Origin Espresso', cat: 'Coffee', price: 'Ugx 6000', status: 'Active' },
+    { name: 'Spiced Chai Latte', cat: 'Tea', price: 'Ugx 6000', status: 'Active' },
+    { name: 'Sourdough Avocado Toast', cat: 'Breakfast', price: 'Ugx 6000', status: 'Active' },
+    { name: 'Braised Short Rib Plate', cat: 'Dinner', price: 'Ugx 6000', status: 'Active' },
+    { name: 'Cardamom Honey Latte', cat: 'Seasonal', price: 'Ugx 6000', status: 'Seasonal' },
+    { name: 'Spiced Pumpkin Scone', cat: 'Seasonal', price: 'Ugx 6000', status: 'Out of Stock' },
   ];
   document.getElementById('admin-menu-table').innerHTML = demoMenu.map(m => `
     <tr>
