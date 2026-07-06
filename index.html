@@ -3,20 +3,56 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Ember & Oak — Staff Dashboard (Demo)</title>
+<title>Ember & Oak — Small-Batch Coffeehouse</title>
+<meta name="description" content="Ember & Oak is a small-batch coffeehouse serving specialty coffee, tea, and seasonal plates. Reserve a table, browse the menu, or order ahead.">
+
+<!-- ============================================================
+     FONTS
+     Display: Fraunces (warm, characterful serif — the "ticket stamp")
+     Body:    Manrope (clean, modern, legible at small sizes)
+     Utility: Space Mono (prices, labels, tickets — receipt feel)
+============================================================ -->
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,600;0,9..144,700&family=Manrope:wght@400;500;600;700;800&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,500;0,9..144,600;0,9..144,700;1,9..144,500&family=Manrope:wght@400;500;600;700;800&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+
+<!-- Icons -->
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+
+<!-- Tailwind (CDN build, configured below with our design tokens) -->
 <script src="https://cdn.tailwindcss.com"></script>
 <script>
   tailwind.config = {
     darkMode: 'class',
-    theme: { extend: {
-      colors: { espresso:'#1B120C', roast:'#4A2E1F', bark:'#2A1D14', cream:'#FAF3E7', parchment:'#F1E4CF', caramel:'#C17A3D', ember:'#E8A94B', rust:'#8C4A2F' },
-      fontFamily: { display: ['"Fraunces"','serif'], body: ['"Manrope"','sans-serif'], mono: ['"Space Mono"','monospace'] },
-    }}
+    theme: {
+      extend: {
+        colors: {
+          espresso:  '#1B120C', // near-black brown — dark mode base / rich text
+          roast:     '#4A2E1F', // primary brown
+          bark:      '#2A1D14', // ink / body text on cream
+          cream:     '#FAF3E7', // warm off-white base
+          parchment: '#F1E4CF', // secondary light surface
+          caramel:   '#C17A3D', // primary accent / CTA
+          ember:     '#E8A94B', // highlight / hover / stamp
+          rust:      '#8C4A2F', // deep accent for dark mode contrast
+        },
+        fontFamily: {
+          display: ['"Fraunces"', 'serif'],
+          body: ['"Manrope"', 'sans-serif'],
+          mono: ['"Space Mono"', 'monospace'],
+        },
+        borderRadius: {
+          '4xl': '2rem',
+        },
+        boxShadow: {
+          glass: '0 8px 32px 0 rgba(27, 18, 12, 0.18)',
+          warm: '0 20px 60px -15px rgba(74, 46, 31, 0.35)',
+        },
+      },
+    },
   };
 </script>
+
 <style>
 /* =========================================================================
    EMBER & OAK — CUSTOM STYLES
@@ -373,207 +409,1550 @@ html.dark .chat-bubble.bot { background: rgba(241,228,207,0.08); }
 #cart-drawer.open { transform: translateX(0); }
 
 </style>
-<style>
-  body { font-family: 'Manrope', sans-serif; }
-  .stat-card { background: rgba(255,255,255,0.6); border: 1px solid rgba(74,46,31,0.08); border-radius: 1.5rem; padding: 1.5rem; }
-  html.dark .stat-card { background: rgba(241,228,207,0.05); border-color: rgba(241,228,207,0.1); }
-  .side-link { display:flex; align-items:center; gap:.75rem; padding:.7rem 1rem; border-radius: .9rem; font-weight:600; font-size:.875rem; color: inherit; opacity:.7; transition: all .2s; }
-  .side-link:hover, .side-link.active { opacity:1; background: rgba(193,122,61,0.12); color:#C17A3D; }
-  .panel { display:none; }
-  .panel.active { display:block; }
-  table { width:100%; border-collapse: collapse; font-size:.875rem; }
-  th { text-align:left; padding: .75rem 1rem; font-family:'Space Mono',monospace; font-size:.68rem; text-transform:uppercase; letter-spacing:.08em; opacity:.55; border-bottom: 1px solid rgba(74,46,31,0.1); }
-  html.dark th { border-color: rgba(241,228,207,0.1); }
-  td { padding: .85rem 1rem; border-bottom: 1px solid rgba(74,46,31,0.06); }
-  html.dark td { border-color: rgba(241,228,207,0.06); }
-  .badge { font-size:.68rem; font-weight:700; padding:.2rem .6rem; border-radius:999px; }
-  .badge-green { background: rgba(110,139,91,0.15); color:#4d6b3b; }
-  .badge-amber { background: rgba(232,169,75,0.2); color:#946015; }
-  .badge-gray { background: rgba(74,46,31,0.1); color:#4A2E1F; }
-</style>
 </head>
-<body class="bg-cream dark:bg-espresso text-bark dark:text-parchment transition-colors">
 
-<div class="flex min-h-screen">
-  <!-- Sidebar -->
-  <aside class="w-64 shrink-0 hidden md:flex flex-col border-r border-bark/10 dark:border-parchment/10 p-6">
-    <a href="index.html" class="flex items-center gap-2 mb-10">
-      <span class="w-9 h-9 rounded-full bg-caramel flex items-center justify-center text-cream font-display font-semibold text-sm">E&O</span>
-      <span class="font-display font-semibold text-lg">Staff Panel</span>
+<body class="font-body bg-cream text-bark dark:bg-espresso dark:text-parchment transition-colors duration-500">
+
+<!-- ================= LOADING SCREEN ================= -->
+<div id="loader" class="fixed inset-0 z-[100] flex flex-col items-center justify-center bg-espresso text-cream">
+  <div class="loader-cup" aria-hidden="true">
+    <div class="loader-steam s1"></div>
+    <div class="loader-steam s2"></div>
+    <div class="loader-steam s3"></div>
+    <div class="loader-cup-body"></div>
+  </div>
+  <p class="mt-6 font-mono text-xs tracking-[0.3em] uppercase text-ember">Brewing your experience</p>
+</div>
+
+<!-- ================= SCROLL PROGRESS BAR ================= -->
+<div id="scroll-progress" class="fixed top-0 left-0 h-[3px] bg-gradient-to-r from-caramel to-ember z-[70]" style="width:0%"></div>
+
+<!-- ================= CUSTOM CURSOR (desktop only, decorative) ================= -->
+<div id="cursor-dot" class="cursor-dot hidden md:block" aria-hidden="true"></div>
+<div id="cursor-ring" class="cursor-ring hidden md:block" aria-hidden="true"></div>
+
+<!-- ================= SKIP LINK (accessibility) ================= -->
+<a href="#main" class="sr-only focus:not-sr-only focus:fixed focus:top-2 focus:left-2 focus:z-[90] focus:bg-caramel focus:text-white focus:px-4 focus:py-2 focus:rounded-full">Skip to content</a>
+
+<!-- ================= NAVIGATION ================= -->
+<header id="site-nav" class="fixed top-0 inset-x-0 z-50 transition-all duration-500">
+  <nav class="max-w-7xl mx-auto flex items-center justify-between px-5 md:px-8 py-4">
+    <a href="#home" class="flex items-center gap-2 group" aria-label="Ember & Oak home">
+      <span class="w-9 h-9 rounded-full bg-caramel flex items-center justify-center text-cream font-display font-semibold text-sm shadow-warm group-hover:rotate-12 transition-transform duration-300">E&O</span>
+      <span class="font-display font-semibold text-lg tracking-tight nav-text">Ember <span class="text-caramel">&amp;</span> Oak</span>
     </a>
-    <nav class="flex flex-col gap-1">
-      <button class="side-link active" data-panel="overview"><i class="fa-solid fa-chart-line w-4"></i> Overview</button>
-      <button class="side-link" data-panel="menu"><i class="fa-solid fa-mug-saucer w-4"></i> Menu Items</button>
-      <button class="side-link" data-panel="reservations"><i class="fa-solid fa-calendar-check w-4"></i> Reservations</button>
-      <button class="side-link" data-panel="orders"><i class="fa-solid fa-receipt w-4"></i> Orders</button>
-      <button class="side-link" data-panel="gallery"><i class="fa-solid fa-images w-4"></i> Gallery</button>
-      <button class="side-link" data-panel="inventory"><i class="fa-solid fa-boxes-stacked w-4"></i> Inventory</button>
-    </nav>
-    <a href="index.html" class="mt-auto side-link"><i class="fa-solid fa-arrow-left w-4"></i> Back to site</a>
-  </aside>
 
-  <!-- Main -->
-  <main class="flex-1 p-6 md:p-10 max-w-6xl">
-    <div class="flex items-center justify-between mb-8">
-      <div>
-        <p class="font-mono text-xs uppercase tracking-widest text-caramel">Demo Data &middot; Not Connected to a Backend</p>
-        <h1 id="panel-title" class="font-display font-semibold text-3xl mt-1">Overview</h1>
-      </div>
-      <button id="admin-theme-toggle" class="w-10 h-10 rounded-full grid place-items-center bg-bark/10 dark:bg-parchment/10">
+    <ul class="hidden lg:flex items-center gap-7 font-medium text-sm nav-text">
+      <li><a href="#home" class="nav-link">Home</a></li>
+      <li><a href="#about" class="nav-link">About</a></li>
+      <li><a href="#menu" class="nav-link">Menu</a></li>
+      <li><a href="#reservations" class="nav-link">Reservations</a></li>
+      <li><a href="#gallery" class="nav-link">Gallery</a></li>
+      <li><a href="#events" class="nav-link">Events</a></li>
+      <li><a href="#blog" class="nav-link">Blog</a></li>
+      <li><a href="#testimonials" class="nav-link">Testimonials</a></li>
+      <li><a href="#contact" class="nav-link">Contact</a></li>
+    </ul>
+
+    <div class="flex items-center gap-2 md:gap-3">
+      <!-- Dark / Light toggle -->
+      <button id="theme-toggle" aria-label="Toggle dark mode" class="w-10 h-10 rounded-full grid place-items-center glass-btn nav-text">
         <i class="fa-solid fa-moon text-sm dark:hidden"></i>
         <i class="fa-solid fa-sun text-sm hidden dark:inline"></i>
       </button>
+      <!-- Cart -->
+      <button id="cart-open-btn" aria-label="Open cart" class="relative w-10 h-10 rounded-full grid place-items-center glass-btn nav-text">
+        <i class="fa-solid fa-bag-shopping text-sm"></i>
+        <span id="cart-count" class="absolute -top-1 -right-1 bg-caramel text-white text-[10px] font-bold w-4 h-4 rounded-full grid place-items-center">0</span>
+      </button>
+      <a href="#reservations" class="hidden md:inline-flex items-center gap-2 bg-caramel hover:bg-rust text-cream text-sm font-semibold px-5 py-2.5 rounded-full transition-all duration-300 hover:shadow-warm hover:-translate-y-0.5">
+        Reserve a Table
+      </a>
+      <!-- Mobile menu button -->
+      <button id="mobile-menu-btn" aria-label="Open menu" class="lg:hidden w-10 h-10 rounded-full grid place-items-center glass-btn nav-text">
+        <i class="fa-solid fa-bars text-sm"></i>
+      </button>
+    </div>
+  </nav>
+
+  <!-- Mobile nav panel -->
+  <div id="mobile-menu" class="lg:hidden hidden flex-col gap-1 px-5 pb-6 pt-2 bg-cream/95 dark:bg-espresso/95 backdrop-blur-xl">
+    <a href="#home" class="mobile-link">Home</a>
+    <a href="#about" class="mobile-link">About</a>
+    <a href="#menu" class="mobile-link">Menu</a>
+    <a href="#reservations" class="mobile-link">Reservations</a>
+    <a href="#gallery" class="mobile-link">Gallery</a>
+    <a href="#events" class="mobile-link">Events</a>
+    <a href="#blog" class="mobile-link">Blog</a>
+    <a href="#testimonials" class="mobile-link">Testimonials</a>
+    <a href="#contact" class="mobile-link">Contact</a>
+    <a href="#reservations" class="mt-3 text-center bg-caramel text-cream font-semibold px-5 py-3 rounded-full">Reserve a Table</a>
+  </div>
+</header>
+
+<main id="main">
+
+  <!-- ================= HERO ================= -->
+  <section id="home" class="relative min-h-screen flex items-center justify-center overflow-hidden bg-espresso">
+    <!-- Animated grain / gradient backdrop -->
+    <div class="absolute inset-0 hero-gradient"></div>
+    <div class="absolute inset-0 grain-overlay opacity-20"></div>
+
+    <!-- Floating coffee bean / steam particles -->
+    <div class="absolute inset-0 pointer-events-none" aria-hidden="true">
+      <span class="bean bean-1"><i class="fa-solid fa-mug-saucer"></i></span>
+      <span class="bean bean-2">●</span>
+      <span class="bean bean-3">●</span>
+      <span class="bean bean-4">●</span>
+      <span class="bean bean-5">●</span>
+      <span class="steam-line steam-a"></span>
+      <span class="steam-line steam-b"></span>
     </div>
 
-    <!-- OVERVIEW -->
-    <section id="panel-overview" class="panel active space-y-8">
-      <div class="grid sm:grid-cols-2 lg:grid-cols-4 gap-5">
-        <div class="stat-card"><p class="text-xs opacity-60 font-mono uppercase">Today's Revenue</p><p class="font-display text-3xl font-semibold mt-2">$1,284</p><p class="text-xs text-green-600 mt-1">↑ 12% vs yesterday</p></div>
-        <div class="stat-card"><p class="text-xs opacity-60 font-mono uppercase">Orders Today</p><p class="font-display text-3xl font-semibold mt-2">96</p><p class="text-xs text-green-600 mt-1">↑ 8% vs yesterday</p></div>
-        <div class="stat-card"><p class="text-xs opacity-60 font-mono uppercase">Reservations Today</p><p class="font-display text-3xl font-semibold mt-2">21</p><p class="text-xs opacity-60 mt-1">6 pending confirmation</p></div>
-        <div class="stat-card"><p class="text-xs opacity-60 font-mono uppercase">Current Occupancy</p><p class="font-display text-3xl font-semibold mt-2">18/40</p><p class="text-xs text-amber-600 mt-1">Moderate</p></div>
+    <div class="relative z-10 max-w-5xl mx-auto px-6 text-center text-cream" data-parallax="0.15">
+      <p class="reveal-up font-mono text-xs md:text-sm tracking-[0.4em] uppercase text-ember mb-6">Est. 2016 &middot; Small-Batch Roasted</p>
+      <h1 class="reveal-up font-display font-semibold leading-[0.95] text-[13vw] md:text-[6.5vw] tracking-tight" style="transition-delay:.1s">
+        Slow mornings,<br><span class="italic text-ember">bold</span> coffee.
+      </h1>
+      <p class="reveal-up mt-6 text-base md:text-lg text-parchment/80 max-w-xl mx-auto" style="transition-delay:.2s">
+        A neighborhood coffeehouse built around single-origin beans, honest food, and a table that's always warm for you.
+      </p>
+      <div class="reveal-up mt-10 flex flex-col sm:flex-row items-center justify-center gap-4" style="transition-delay:.3s">
+        <a href="#menu" class="w-full sm:w-auto inline-flex items-center justify-center gap-2 bg-caramel hover:bg-ember hover:text-espresso text-cream font-semibold px-8 py-4 rounded-full transition-all duration-300 hover:-translate-y-1 hover:shadow-warm">
+          View the Menu <i class="fa-solid fa-arrow-right text-sm"></i>
+        </a>
+        <a href="#reservations" class="w-full sm:w-auto inline-flex items-center justify-center gap-2 glass-btn text-cream font-semibold px-8 py-4 rounded-full transition-all duration-300 hover:-translate-y-1">
+          Reserve a Table
+        </a>
       </div>
+    </div>
 
-      <div class="stat-card">
-        <p class="font-display font-semibold text-lg mb-4">Revenue — Last 7 Days</p>
-        <div class="flex items-end gap-3 h-40">
-          <div class="flex-1 bg-caramel/70 rounded-t-lg" style="height:55%"></div>
-          <div class="flex-1 bg-caramel/70 rounded-t-lg" style="height:70%"></div>
-          <div class="flex-1 bg-caramel/70 rounded-t-lg" style="height:45%"></div>
-          <div class="flex-1 bg-caramel/70 rounded-t-lg" style="height:80%"></div>
-          <div class="flex-1 bg-caramel/70 rounded-t-lg" style="height:65%"></div>
-          <div class="flex-1 bg-ember rounded-t-lg" style="height:95%"></div>
-          <div class="flex-1 bg-caramel/70 rounded-t-lg" style="height:60%"></div>
+    <!-- Scroll cue -->
+    <a href="#about" class="absolute bottom-8 left-1/2 -translate-x-1/2 text-cream/70 flex flex-col items-center gap-2 scroll-cue" aria-label="Scroll to next section">
+      <span class="font-mono text-[10px] tracking-[0.3em] uppercase">Scroll</span>
+      <span class="w-[1px] h-10 bg-cream/50 relative overflow-hidden"><span class="scroll-cue-line"></span></span>
+    </a>
+  </section>
+
+  <!-- ================= LIVE INFO TICKER ================= -->
+  <div class="bg-caramel text-cream py-3 overflow-hidden">
+    <div class="marquee flex whitespace-nowrap font-mono text-xs tracking-widest uppercase">
+      <span class="mx-6">☕ Open Today 7:00 – 20:00</span>
+      <span class="mx-6">✧ Today's Special: Cardamom Honey Latte</span>
+      <span class="mx-6">☕ Live Occupancy: <span id="ticker-occupancy">Moderate</span></span>
+      <span class="mx-6">✧ Free WiFi &amp; Roastery Tours Saturdays</span>
+      <span class="mx-6">☕ Open Today 7:00 – 20:00</span>
+      <span class="mx-6">✧ Today's Special: Cardamom Honey Latte</span>
+      <span class="mx-6">☕ Live Occupancy: Moderate</span>
+      <span class="mx-6">✧ Free WiFi &amp; Roastery Tours Saturdays</span>
+    </div>
+  </div>
+
+  <!-- ================= ABOUT ================= -->
+  <section id="about" class="relative py-24 md:py-32 px-6 bg-cream dark:bg-espresso overflow-hidden">
+    <div class="max-w-7xl mx-auto">
+      <div class="grid md:grid-cols-2 gap-16 items-center mb-24">
+        <div class="reveal-up">
+          <p class="eyebrow">Our Story</p>
+          <h2 class="section-title">From one kettle<br>to a neighborhood ritual.</h2>
+          <p class="mt-6 text-bark/80 dark:text-parchment/80 leading-relaxed">
+            Ember & Oak began as a single pour-over kettle on a market stall. Today it's a full roastery and
+            kitchen, but the goal hasn't changed: source honestly, roast carefully, and give people a warm
+            room to slow down in. Every cup is traceable to the farm it came from, and every plate is made
+            in-house that morning.
+          </p>
+          <div class="mt-10 grid grid-cols-3 gap-6">
+            <div class="text-center">
+              <p class="counter font-display text-4xl font-semibold text-caramel" data-target="9">0</p>
+              <p class="text-xs font-mono uppercase tracking-wider mt-1 text-bark/60 dark:text-parchment/60">Years Roasting</p>
+            </div>
+            <div class="text-center">
+              <p class="counter font-display text-4xl font-semibold text-caramel" data-target="128000">0</p>
+              <p class="text-xs font-mono uppercase tracking-wider mt-1 text-bark/60 dark:text-parchment/60">Cups Served</p>
+            </div>
+            <div class="text-center">
+              <p class="counter font-display text-4xl font-semibold text-caramel" data-target="14">0</p>
+              <p class="text-xs font-mono uppercase tracking-wider mt-1 text-bark/60 dark:text-parchment/60">Origin Farms</p>
+            </div>
+          </div>
         </div>
-        <div class="flex justify-between text-xs font-mono opacity-50 mt-2">
-          <span>Mon</span><span>Tue</span><span>Wed</span><span>Thu</span><span>Fri</span><span>Sat</span><span>Sun</span>
+        <div class="reveal-up relative" style="transition-delay:.15s">
+          <div class="rounded-4xl overflow-hidden shadow-warm img-reveal">
+            <img src="https://images.unsplash.com/photo-1447933601403-0c6688de566e?w=900&q=80" alt="Barista pouring latte art into a ceramic cup" loading="lazy" class="w-full h-[420px] object-cover hover-zoom">
+          </div>
+          <div class="absolute -bottom-8 -left-8 hidden md:block glass-card p-5 rounded-3xl w-52">
+            <i class="fa-solid fa-leaf text-caramel text-lg"></i>
+            <p class="font-display font-semibold mt-2">Direct Trade</p>
+            <p class="text-xs text-bark/70 dark:text-parchment/70 mt-1">Paying farmers 30% above market rate.</p>
+          </div>
         </div>
       </div>
 
-      <p class="text-xs opacity-50">This dashboard uses static placeholder data to demonstrate layout and UX. Wire it to your own backend/API to make it live.</p>
-    </section>
+      <!-- Timeline -->
+      <div class="mb-24">
+        <p class="eyebrow text-center">Our Journey</p>
+        <h3 class="section-title text-center mb-14">A decade, in a few cups.</h3>
+        <div class="timeline">
+          <div class="timeline-item reveal-up">
+            <span class="timeline-year">2016</span>
+            <p class="timeline-text">First market stall opens with a single hand-pour kettle.</p>
+          </div>
+          <div class="timeline-item reveal-up" style="transition-delay:.1s">
+            <span class="timeline-year">2018</span>
+            <p class="timeline-text">Ember & Oak's first permanent home opens its doors.</p>
+          </div>
+          <div class="timeline-item reveal-up" style="transition-delay:.2s">
+            <span class="timeline-year">2021</span>
+            <p class="timeline-text">In-house roastery launches; direct trade partnerships begin.</p>
+          </div>
+          <div class="timeline-item reveal-up" style="transition-delay:.3s">
+            <span class="timeline-year">2024</span>
+            <p class="timeline-text">Named "Best Independent Café" by City Table Awards.</p>
+          </div>
+        </div>
+      </div>
 
-    <!-- MENU ITEMS -->
-    <section id="panel-menu" class="panel">
-      <div class="flex justify-between items-center mb-4">
-        <p class="text-sm opacity-70">Manage what shows up on the public menu.</p>
-        <button class="bg-caramel text-cream text-sm font-semibold px-4 py-2.5 rounded-full"><i class="fa-solid fa-plus mr-1"></i> Add Item</button>
+      <!-- Meet the chef / staff -->
+      <div class="mb-24">
+        <p class="eyebrow text-center">The People</p>
+        <h3 class="section-title text-center mb-14">Meet the hands behind it.</h3>
+        <div class="grid sm:grid-cols-2 lg:grid-cols-4 gap-8">
+          <div class="staff-card reveal-up">
+            <img src="https://images.unsplash.com/photo-1583394838336-acd977736f90?w=400&q=80" alt="Portrait of Head Chef Elena Marsh" loading="lazy" class="hover-zoom">
+            <p class="font-display font-semibold mt-4">Elena Marsh</p>
+            <p class="text-xs font-mono uppercase tracking-wider text-caramel">Head Chef</p>
+          </div>
+          <div class="staff-card reveal-up" style="transition-delay:.1s">
+            <img src="https://images.unsplash.com/photo-1560250097-0b93528c311a?w=400&q=80" alt="Portrait of Head Roaster Tomas Reyes" loading="lazy" class="hover-zoom">
+            <p class="font-display font-semibold mt-4">Tomas Reyes</p>
+            <p class="text-xs font-mono uppercase tracking-wider text-caramel">Head Roaster</p>
+          </div>
+          <div class="staff-card reveal-up" style="transition-delay:.2s">
+            <img src="https://images.unsplash.com/photo-1517841905240-472988babdf9?w=400&q=80" alt="Portrait of Pastry Lead Aiko Nakamura" loading="lazy" class="hover-zoom">
+            <p class="font-display font-semibold mt-4">Aiko Nakamura</p>
+            <p class="text-xs font-mono uppercase tracking-wider text-caramel">Pastry Lead</p>
+          </div>
+          <div class="staff-card reveal-up" style="transition-delay:.3s">
+            <img src="https://images.unsplash.com/photo-1519085360753-af0119f7cbe7?w=400&q=80" alt="Portrait of Floor Manager Sam Okafor" loading="lazy" class="hover-zoom">
+            <p class="font-display font-semibold mt-4">Sam Okafor</p>
+            <p class="text-xs font-mono uppercase tracking-wider text-caramel">Floor Manager</p>
+          </div>
+        </div>
       </div>
-      <div class="stat-card !p-0 overflow-x-auto">
-        <table>
-          <thead><tr><th>Item</th><th>Category</th><th>Price</th><th>Status</th><th></th></tr></thead>
-          <tbody id="admin-menu-table"></tbody>
-        </table>
-      </div>
-    </section>
 
-    <!-- RESERVATIONS -->
-    <section id="panel-reservations" class="panel">
-      <p class="text-sm opacity-70 mb-4">Today's incoming table reservations.</p>
-      <div class="stat-card !p-0 overflow-x-auto">
-        <table>
-          <thead><tr><th>Guest</th><th>Date</th><th>Time</th><th>Guests</th><th>Status</th></tr></thead>
-          <tbody>
-            <tr><td>Jordan Blake</td><td>2026-07-06</td><td>18:30</td><td>2</td><td><span class="badge badge-green">Confirmed</span></td></tr>
-            <tr><td>Amara Diallo</td><td>2026-07-06</td><td>19:00</td><td>4</td><td><span class="badge badge-amber">Pending</span></td></tr>
-            <tr><td>Liu Wei</td><td>2026-07-06</td><td>12:15</td><td>2</td><td><span class="badge badge-green">Confirmed</span></td></tr>
-            <tr><td>Noah Fischer</td><td>2026-07-07</td><td>09:00</td><td>6</td><td><span class="badge badge-gray">Waitlist</span></td></tr>
-          </tbody>
-        </table>
+      <!-- Awards + Sustainability -->
+      <div class="grid md:grid-cols-2 gap-8">
+        <div class="glass-card p-8 reveal-up">
+          <i class="fa-solid fa-award text-caramel text-2xl"></i>
+          <h4 class="font-display font-semibold text-xl mt-3">Awards & Recognition</h4>
+          <ul class="mt-4 space-y-2 text-sm text-bark/80 dark:text-parchment/80">
+            <li>&#8226; Best Independent Café — City Table Awards, 2024</li>
+            <li>&#8226; Top 10 Roasters Nationwide — Brew Journal, 2023</li>
+            <li>&#8226; Sustainable Business of the Year — Green Trade Council, 2022</li>
+          </ul>
+        </div>
+        <div class="glass-card p-8 reveal-up" style="transition-delay:.1s">
+          <i class="fa-solid fa-seedling text-caramel text-2xl"></i>
+          <h4 class="font-display font-semibold text-xl mt-3">Sustainability</h4>
+          <p class="mt-4 text-sm text-bark/80 dark:text-parchment/80 leading-relaxed">
+            Compostable packaging, spent-grounds composting with local farms, and direct-trade sourcing
+            that keeps more revenue with the growers who make the beans possible.
+          </p>
+        </div>
       </div>
-    </section>
+    </div>
+  </section>
 
-    <!-- ORDERS -->
-    <section id="panel-orders" class="panel">
-      <p class="text-sm opacity-70 mb-4">Recent pickup and delivery orders.</p>
-      <div class="stat-card !p-0 overflow-x-auto">
-        <table>
-          <thead><tr><th>Order</th><th>Customer</th><th>Type</th><th>Total</th><th>Status</th></tr></thead>
-          <tbody>
-            <tr><td class="font-mono">#EO-48213</td><td>Priya N.</td><td>Delivery</td><td>$24.50</td><td><span class="badge badge-amber">Preparing</span></td></tr>
-            <tr><td class="font-mono">#EO-48212</td><td>Daniel K.</td><td>Pickup</td><td>$11.00</td><td><span class="badge badge-green">Ready</span></td></tr>
-            <tr><td class="font-mono">#EO-48211</td><td>Wanjiru M.</td><td>Delivery</td><td>$32.90</td><td><span class="badge badge-gray">Delivered</span></td></tr>
-          </tbody>
-        </table>
+  <!-- ================= MENU ================= -->
+  <section id="menu" class="py-24 md:py-32 px-6 bg-parchment dark:bg-bark/40">
+    <div class="max-w-7xl mx-auto">
+      <div class="text-center mb-12 reveal-up">
+        <p class="eyebrow justify-center">The Menu</p>
+        <h2 class="section-title">Made fresh, priced honestly.</h2>
+        <p class="mt-4 text-bark/70 dark:text-parchment/70 max-w-xl mx-auto">Every ticket below can be added straight to your order — dine in, pickup, or delivery.</p>
       </div>
-    </section>
 
-    <!-- GALLERY -->
-    <section id="panel-gallery" class="panel">
-      <div class="flex justify-between items-center mb-4">
-        <p class="text-sm opacity-70">Manage photos shown in the public gallery.</p>
-        <button class="bg-caramel text-cream text-sm font-semibold px-4 py-2.5 rounded-full"><i class="fa-solid fa-upload mr-1"></i> Upload</button>
+      <!-- Category filters -->
+      <div id="menu-filters" class="flex flex-wrap justify-center gap-2 mb-12 reveal-up">
+        <!-- populated by JS also, but base markup here for no-js fallback -->
+        <button class="menu-filter-btn active" data-filter="all">All</button>
+        <button class="menu-filter-btn" data-filter="coffee">Coffee</button>
+        <button class="menu-filter-btn" data-filter="tea">Tea</button>
+        <button class="menu-filter-btn" data-filter="breakfast">Breakfast</button>
+        <button class="menu-filter-btn" data-filter="lunch">Lunch</button>
+        <button class="menu-filter-btn" data-filter="dinner">Dinner</button>
+        <button class="menu-filter-btn" data-filter="dessert">Desserts</button>
+        <button class="menu-filter-btn" data-filter="drinks">Drinks</button>
+        <button class="menu-filter-btn" data-filter="seasonal">Seasonal</button>
       </div>
-      <div id="admin-gallery-grid" class="grid grid-cols-3 sm:grid-cols-4 lg:grid-cols-6 gap-3"></div>
-    </section>
 
-    <!-- INVENTORY -->
-    <section id="panel-inventory" class="panel">
-      <p class="text-sm opacity-70 mb-4">Rough stock overview (demo figures).</p>
-      <div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-5">
-        <div class="stat-card"><p class="font-semibold">Ethiopian Yirgacheffe</p><p class="text-xs opacity-60 mt-1">Green beans</p><div class="w-full h-2 bg-bark/10 dark:bg-parchment/10 rounded-full mt-3"><div class="h-2 bg-caramel rounded-full" style="width:72%"></div></div><p class="text-xs mt-1 opacity-60">72% · 36kg left</p></div>
-        <div class="stat-card"><p class="font-semibold">Oat Milk</p><p class="text-xs opacity-60 mt-1">Fridge stock</p><div class="w-full h-2 bg-bark/10 dark:bg-parchment/10 rounded-full mt-3"><div class="h-2 bg-amber-500 rounded-full" style="width:24%"></div></div><p class="text-xs mt-1 opacity-60">24% · Reorder soon</p></div>
-        <div class="stat-card"><p class="font-semibold">Sourdough Loaves</p><p class="text-xs opacity-60 mt-1">Baked daily</p><div class="w-full h-2 bg-bark/10 dark:bg-parchment/10 rounded-full mt-3"><div class="h-2 bg-green-600 rounded-full" style="width:90%"></div></div><p class="text-xs mt-1 opacity-60">90% · Fresh batch this morning</p></div>
+      <!-- Menu grid: populated dynamically by app.js from MENU_DATA -->
+      <div id="menu-grid" class="grid sm:grid-cols-2 lg:grid-cols-3 gap-8"></div>
+    </div>
+  </section>
+
+  <!-- ================= CHEF'S RECOMMENDATIONS / TODAY'S SPECIALS ================= -->
+  <section class="py-20 px-6 bg-roast text-cream relative overflow-hidden">
+    <div class="absolute inset-0 grain-overlay opacity-10"></div>
+    <div class="max-w-7xl mx-auto relative z-10">
+      <div class="flex flex-col md:flex-row md:items-end md:justify-between gap-4 mb-10 reveal-up">
+        <div>
+          <p class="eyebrow !text-ember">Chef's Recommendations</p>
+          <h2 class="section-title !text-cream">Today's specials, hand-picked.</h2>
+        </div>
+        <div class="glass-card px-5 py-3 flex items-center gap-3 self-start md:self-auto">
+          <span class="relative flex h-3 w-3">
+            <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-ember opacity-75"></span>
+            <span class="relative inline-flex rounded-full h-3 w-3 bg-ember"></span>
+          </span>
+          <span class="text-sm font-mono">Occupancy: <strong id="occupancy-label">Moderate</strong> (<span id="occupancy-count">18</span>/40 seats)</span>
+        </div>
       </div>
-    </section>
-  </main>
+      <div id="specials-grid" class="grid sm:grid-cols-2 lg:grid-cols-3 gap-6"></div>
+    </div>
+  </section>
+
+  <!-- ================= RESERVATIONS ================= -->
+  <section id="reservations" class="py-24 md:py-32 px-6 bg-cream dark:bg-espresso">
+    <div class="max-w-6xl mx-auto grid lg:grid-cols-2 gap-14 items-start">
+      <div class="reveal-up">
+        <p class="eyebrow">Reservations</p>
+        <h2 class="section-title">Save your table,<br>skip the wait.</h2>
+        <p class="mt-4 text-bark/70 dark:text-parchment/70 max-w-md">
+          Tell us when you're coming and how many are joining you — we'll hold the table and have it ready.
+        </p>
+
+        <div class="mt-10 glass-card p-6">
+          <h4 class="font-display font-semibold text-lg mb-4">Opening Hours</h4>
+          <ul class="space-y-2 text-sm font-mono">
+            <li class="flex justify-between"><span>Mon – Fri</span><span>07:00 – 20:00</span></li>
+            <li class="flex justify-between"><span>Saturday</span><span>08:00 – 22:00</span></li>
+            <li class="flex justify-between"><span>Sunday</span><span>08:00 – 18:00</span></li>
+          </ul>
+        </div>
+      </div>
+
+      <form id="reservation-form" class="glass-card p-8 reveal-up" style="transition-delay:.1s" novalidate>
+        <div class="grid sm:grid-cols-2 gap-5">
+          <div class="form-group">
+            <label for="res-name">Full Name</label>
+            <input id="res-name" name="name" type="text" required placeholder="Jordan Blake">
+          </div>
+          <div class="form-group">
+            <label for="res-phone">Phone</label>
+            <input id="res-phone" name="phone" type="tel" required placeholder="+256 700 000 000">
+          </div>
+          <div class="form-group">
+            <label for="res-date">Date</label>
+            <input id="res-date" name="date" type="date" required>
+          </div>
+          <div class="form-group">
+            <label for="res-time">Time</label>
+            <input id="res-time" name="time" type="time" required>
+          </div>
+          <div class="form-group sm:col-span-2">
+            <label for="res-guests">Number of Guests</label>
+            <div class="stepper">
+              <button type="button" class="stepper-btn" data-step="guests" data-dir="-1" aria-label="Decrease guests">−</button>
+              <input id="res-guests" name="guests" type="number" min="1" max="12" value="2" readonly>
+              <button type="button" class="stepper-btn" data-step="guests" data-dir="1" aria-label="Increase guests">+</button>
+            </div>
+          </div>
+          <div class="form-group sm:col-span-2">
+            <label for="res-notes">Notes (optional)</label>
+            <textarea id="res-notes" name="notes" rows="3" placeholder="Window seat, allergy info, celebration..."></textarea>
+          </div>
+        </div>
+        <button type="submit" class="mt-6 w-full bg-caramel hover:bg-rust text-cream font-semibold py-4 rounded-full transition-all duration-300 hover:-translate-y-0.5 hover:shadow-warm">
+          Confirm Reservation
+        </button>
+      </form>
+    </div>
+  </section>
+
+  <!-- ================= GALLERY ================= -->
+  <section id="gallery" class="py-24 md:py-32 px-6 bg-parchment dark:bg-bark/40">
+    <div class="max-w-7xl mx-auto">
+      <div class="text-center mb-10 reveal-up">
+        <p class="eyebrow justify-center">Gallery</p>
+        <h2 class="section-title">A look inside.</h2>
+      </div>
+      <div id="gallery-filters" class="flex flex-wrap justify-center gap-2 mb-10 reveal-up">
+        <button class="menu-filter-btn active" data-gfilter="all">All</button>
+        <button class="menu-filter-btn" data-gfilter="drinks">Drinks</button>
+        <button class="menu-filter-btn" data-gfilter="food">Food</button>
+        <button class="menu-filter-btn" data-gfilter="space">Space</button>
+        <button class="menu-filter-btn" data-gfilter="people">People</button>
+      </div>
+      <div id="gallery-grid" class="masonry"></div>
+    </div>
+  </section>
+
+  <!-- Lightbox -->
+  <div id="lightbox" class="fixed inset-0 z-[80] hidden bg-espresso/95 backdrop-blur-md items-center justify-center p-6">
+    <button id="lightbox-close" aria-label="Close image viewer" class="absolute top-6 right-6 text-cream text-2xl w-11 h-11 rounded-full glass-btn grid place-items-center"><i class="fa-solid fa-xmark"></i></button>
+    <button id="lightbox-prev" aria-label="Previous image" class="absolute left-4 md:left-8 text-cream text-xl w-11 h-11 rounded-full glass-btn grid place-items-center"><i class="fa-solid fa-chevron-left"></i></button>
+    <button id="lightbox-next" aria-label="Next image" class="absolute right-4 md:right-8 text-cream text-xl w-11 h-11 rounded-full glass-btn grid place-items-center"><i class="fa-solid fa-chevron-right"></i></button>
+    <img id="lightbox-img" src="" alt="" class="max-h-[85vh] max-w-[90vw] rounded-2xl shadow-warm object-contain">
+  </div>
+
+  <!-- ================= EVENTS ================= -->
+  <section id="events" class="py-24 md:py-32 px-6 bg-cream dark:bg-espresso">
+    <div class="max-w-7xl mx-auto">
+      <div class="text-center mb-14 reveal-up">
+        <p class="eyebrow justify-center">Events</p>
+        <h2 class="section-title">More than a coffee run.</h2>
+      </div>
+      <div class="grid md:grid-cols-3 gap-8">
+        <div class="event-card reveal-up">
+          <img src="https://images.unsplash.com/photo-1493225457124-a3eb161ffa5f?w=700&q=80" alt="Acoustic musician performing at the café in the evening" loading="lazy" class="hover-zoom">
+          <div class="p-6">
+            <p class="text-xs font-mono uppercase tracking-widest text-caramel">Every Friday, 19:00</p>
+            <h3 class="font-display font-semibold text-xl mt-2">Live Music Nights</h3>
+            <p class="text-sm mt-2 text-bark/70 dark:text-parchment/70">Local acoustic acts play the corner stage while the espresso machine keeps humming.</p>
+            <button class="event-book-btn mt-4" data-event="Live Music Night">Reserve a Seat</button>
+          </div>
+        </div>
+        <div class="event-card reveal-up" style="transition-delay:.1s">
+          <img src="https://images.unsplash.com/photo-1442512595331-e89e73853f31?w=700&q=80" alt="Coffee cupping and tasting session with several small cups" loading="lazy" class="hover-zoom">
+          <div class="p-6">
+            <p class="text-xs font-mono uppercase tracking-widest text-caramel">First Saturday of the Month</p>
+            <h3 class="font-display font-semibold text-xl mt-2">Coffee Tasting & Cupping</h3>
+            <p class="text-sm mt-2 text-bark/70 dark:text-parchment/70">Taste four origins side by side, guided by our head roaster.</p>
+            <button class="event-book-btn mt-4" data-event="Coffee Tasting">Reserve a Seat</button>
+          </div>
+        </div>
+        <div class="event-card reveal-up" style="transition-delay:.2s">
+          <img src="https://images.unsplash.com/photo-1511920170033-f8396924c348?w=700&q=80" alt="Private dining setup reserved for a group event" loading="lazy" class="hover-zoom">
+          <div class="p-6">
+            <p class="text-xs font-mono uppercase tracking-widest text-caramel">By Request</p>
+            <h3 class="font-display font-semibold text-xl mt-2">Private Events</h3>
+            <p class="text-sm mt-2 text-bark/70 dark:text-parchment/70">Book the whole café for birthdays, launches, or team offsites.</p>
+            <button class="event-book-btn mt-4" data-event="Private Event">Enquire Now</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ================= BLOG ================= -->
+  <section id="blog" class="py-24 md:py-32 px-6 bg-parchment dark:bg-bark/40">
+    <div class="max-w-7xl mx-auto">
+      <div class="text-center mb-14 reveal-up">
+        <p class="eyebrow justify-center">From the Journal</p>
+        <h2 class="section-title">Notes from the roastery.</h2>
+      </div>
+      <div class="grid md:grid-cols-3 gap-8">
+        <article class="blog-card reveal-up">
+          <img src="https://images.unsplash.com/photo-1495474472287-4d71bcdd2085?w=700&q=80" alt="Fresh coffee beans being sorted" loading="lazy" class="hover-zoom">
+          <div class="p-6">
+            <p class="text-xs font-mono uppercase tracking-widest text-caramel">Sourcing &middot; 6 min read</p>
+            <h3 class="font-display font-semibold text-lg mt-2">What "direct trade" actually means</h3>
+            <p class="text-sm mt-2 text-bark/70 dark:text-parchment/70">A plain-language look at how we price, pay, and build long relationships with farms.</p>
+          </div>
+        </article>
+        <article class="blog-card reveal-up" style="transition-delay:.1s">
+          <img src="https://images.unsplash.com/photo-1442512595331-e89e73853f31?w=700&q=80" alt="Pour-over coffee brewing method" loading="lazy" class="hover-zoom">
+          <div class="p-6">
+            <p class="text-xs font-mono uppercase tracking-widest text-caramel">Brewing &middot; 4 min read</p>
+            <h3 class="font-display font-semibold text-lg mt-2">Pour-over at home, without the gear anxiety</h3>
+            <p class="text-sm mt-2 text-bark/70 dark:text-parchment/70">Our house method for a clean, bright cup using kit you probably already own.</p>
+          </div>
+        </article>
+        <article class="blog-card reveal-up" style="transition-delay:.2s">
+          <img src="https://images.unsplash.com/photo-1509042239860-f550ce710b93?w=700&q=80" alt="Seasonal autumn coffee drink with spices" loading="lazy" class="hover-zoom">
+          <div class="p-6">
+            <p class="text-xs font-mono uppercase tracking-widest text-caramel">Seasonal &middot; 3 min read</p>
+            <h3 class="font-display font-semibold text-lg mt-2">Behind this season's cardamom honey latte</h3>
+            <p class="text-sm mt-2 text-bark/70 dark:text-parchment/70">Why we reach for cardamom over cinnamon once the weather turns.</p>
+          </div>
+        </article>
+      </div>
+    </div>
+  </section>
+
+  <!-- ================= TESTIMONIALS ================= -->
+  <section id="testimonials" class="py-24 md:py-32 px-6 bg-roast text-cream relative overflow-hidden">
+    <div class="absolute inset-0 grain-overlay opacity-10"></div>
+    <div class="max-w-4xl mx-auto text-center relative z-10">
+      <p class="eyebrow justify-center !text-ember">Testimonials</p>
+      <h2 class="section-title !text-cream mb-12">Loved by regulars.</h2>
+
+      <div id="testimonial-track" class="relative min-h-[260px]">
+        <!-- slides injected by JS -->
+      </div>
+
+      <div id="testimonial-dots" class="flex justify-center gap-2 mt-8"></div>
+    </div>
+  </section>
+
+  <!-- ================= FAQ ================= -->
+  <section class="py-24 md:py-32 px-6 bg-cream dark:bg-espresso">
+    <div class="max-w-3xl mx-auto">
+      <div class="text-center mb-12 reveal-up">
+        <p class="eyebrow justify-center">FAQ</p>
+        <h2 class="section-title">Good to know.</h2>
+      </div>
+      <div id="faq-accordion" class="space-y-3">
+        <div class="faq-item reveal-up">
+          <button class="faq-question">Do you take walk-ins?<i class="fa-solid fa-chevron-down"></i></button>
+          <div class="faq-answer"><p>Always — reservations just guarantee a table during busy hours (mornings and Friday evenings).</p></div>
+        </div>
+        <div class="faq-item reveal-up">
+          <button class="faq-question">Is there parking nearby?<i class="fa-solid fa-chevron-down"></i></button>
+          <div class="faq-answer"><p>Street parking is available on Oak Street, and a public lot sits one block east.</p></div>
+        </div>
+        <div class="faq-item reveal-up">
+          <button class="faq-question">Can I buy your beans to take home?<i class="fa-solid fa-chevron-down"></i></button>
+          <div class="faq-answer"><p>Yes — bagged beans and whole-bean subscriptions are available at the counter and for delivery.</p></div>
+        </div>
+        <div class="faq-item reveal-up">
+          <button class="faq-question">Do you cater private events?<i class="fa-solid fa-chevron-down"></i></button>
+          <div class="faq-answer"><p>We do. Head to the Events section and choose "Private Event" to start an enquiry.</p></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ================= NEWSLETTER ================= -->
+  <section class="py-20 px-6 bg-caramel text-cream">
+    <div class="max-w-3xl mx-auto text-center reveal-up">
+      <h2 class="font-display font-semibold text-3xl md:text-4xl">Get first pick of seasonal drops.</h2>
+      <p class="mt-3 text-cream/85">One email a month. New roasts, menu changes, event dates — nothing else.</p>
+      <form id="newsletter-form" class="mt-8 flex flex-col sm:flex-row gap-3 max-w-md mx-auto">
+        <input type="email" required placeholder="you@email.com" class="flex-1 px-5 py-3.5 rounded-full text-bark placeholder:text-bark/50 focus:outline-none focus:ring-4 focus:ring-ember/40">
+        <button type="submit" class="bg-espresso hover:bg-bark text-cream font-semibold px-6 py-3.5 rounded-full transition-colors">Subscribe</button>
+      </form>
+      <p id="newsletter-msg" class="mt-3 text-sm text-espresso font-medium hidden"></p>
+    </div>
+  </section>
+
+  <!-- ================= INSTAGRAM FEED PLACEHOLDER ================= -->
+  <section class="py-20 px-6 bg-parchment dark:bg-bark/40">
+    <div class="max-w-7xl mx-auto">
+      <div class="text-center mb-10 reveal-up">
+        <p class="eyebrow justify-center">@emberandoak</p>
+        <h2 class="section-title">Follow along.</h2>
+      </div>
+      <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3">
+        <a href="#" class="ig-tile reveal-up"><img src="https://images.unsplash.com/photo-1495474472287-4d71bcdd2085?w=400&q=70" loading="lazy" alt="Instagram post: coffee beans"></a>
+        <a href="#" class="ig-tile reveal-up"><img src="https://images.unsplash.com/photo-1447933601403-0c6688de566e?w=400&q=70" loading="lazy" alt="Instagram post: latte art"></a>
+        <a href="#" class="ig-tile reveal-up"><img src="https://images.unsplash.com/photo-1509042239860-f550ce710b93?w=400&q=70" loading="lazy" alt="Instagram post: seasonal drink"></a>
+        <a href="#" class="ig-tile reveal-up"><img src="https://images.unsplash.com/photo-1481391319762-47dff72954d9?w=400&q=70" loading="lazy" alt="Instagram post: pastry"></a>
+        <a href="#" class="ig-tile reveal-up"><img src="https://images.unsplash.com/photo-1498804103079-a6351b050096?w=400&q=70" loading="lazy" alt="Instagram post: café interior"></a>
+        <a href="#" class="ig-tile reveal-up"><img src="https://images.unsplash.com/photo-1453614512568-c4024d13c247?w=400&q=70" loading="lazy" alt="Instagram post: coffee cup close-up"></a>
+      </div>
+    </div>
+  </section>
+
+  <!-- ================= CONTACT ================= -->
+  <section id="contact" class="py-24 md:py-32 px-6 bg-cream dark:bg-espresso">
+    <div class="max-w-7xl mx-auto grid lg:grid-cols-2 gap-14">
+      <div class="reveal-up">
+        <p class="eyebrow">Contact</p>
+        <h2 class="section-title mb-8">Come say hello.</h2>
+
+        <form id="contact-form" class="glass-card p-8" novalidate>
+          <div class="grid sm:grid-cols-2 gap-5">
+            <div class="form-group">
+              <label for="c-name">Name</label>
+              <input id="c-name" type="text" required placeholder="Your name">
+            </div>
+            <div class="form-group">
+              <label for="c-email">Email</label>
+              <input id="c-email" type="email" required placeholder="you@email.com">
+            </div>
+            <div class="form-group sm:col-span-2">
+              <label for="c-message">Message</label>
+              <textarea id="c-message" rows="4" required placeholder="How can we help?"></textarea>
+            </div>
+          </div>
+          <button type="submit" class="mt-6 w-full bg-caramel hover:bg-rust text-cream font-semibold py-4 rounded-full transition-all duration-300 hover:-translate-y-0.5 hover:shadow-warm">
+            Send Message
+          </button>
+        </form>
+      </div>
+
+      <div class="reveal-up" style="transition-delay:.1s">
+        <!-- Map placeholder -->
+        <div class="rounded-4xl overflow-hidden h-64 map-placeholder mb-6">
+          <div class="w-full h-full grid place-items-center text-center px-6">
+            <div>
+              <i class="fa-solid fa-map-location-dot text-3xl text-caramel"></i>
+              <p class="mt-2 font-mono text-xs uppercase tracking-widest text-bark/60 dark:text-parchment/60">Embedded map placeholder — plug in Google Maps / Mapbox here</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="glass-card p-8 space-y-5">
+          <div class="flex items-start gap-4">
+            <i class="fa-solid fa-location-dot text-caramel mt-1"></i>
+            <p>14 Oak Street, Kampala, Uganda</p>
+          </div>
+          <div class="flex items-start gap-4">
+            <i class="fa-solid fa-phone text-caramel mt-1"></i>
+            <p>+256 700 000 000</p>
+          </div>
+          <div class="flex items-start gap-4">
+            <i class="fa-solid fa-envelope text-caramel mt-1"></i>
+            <p>hello@emberandoak.cafe</p>
+          </div>
+          <div class="flex items-start gap-4">
+            <i class="fa-solid fa-clock text-caramel mt-1"></i>
+            <p>Mon–Fri 07:00–20:00 &middot; Sat 08:00–22:00 &middot; Sun 08:00–18:00</p>
+          </div>
+          <div class="flex gap-3 pt-2">
+            <a href="#" aria-label="Instagram" class="social-icon"><i class="fa-brands fa-instagram"></i></a>
+            <a href="#" aria-label="Facebook" class="social-icon"><i class="fa-brands fa-facebook-f"></i></a>
+            <a href="#" aria-label="TikTok" class="social-icon"><i class="fa-brands fa-tiktok"></i></a>
+            <a href="#" aria-label="X / Twitter" class="social-icon"><i class="fa-brands fa-x-twitter"></i></a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+</main>
+
+<!-- ================= FOOTER ================= -->
+<footer class="bg-espresso text-parchment/80 py-14 px-6">
+  <div class="max-w-7xl mx-auto grid sm:grid-cols-2 lg:grid-cols-4 gap-10">
+    <div>
+      <span class="font-display font-semibold text-xl text-cream">Ember <span class="text-caramel">&amp;</span> Oak</span>
+      <p class="mt-3 text-sm max-w-xs">Small-batch coffee, honest food, and a room built for slowing down.</p>
+    </div>
+    <div>
+      <p class="font-mono text-xs uppercase tracking-widest text-ember mb-4">Explore</p>
+      <ul class="space-y-2 text-sm">
+        <li><a href="#menu" class="hover:text-cream transition-colors">Menu</a></li>
+        <li><a href="#gallery" class="hover:text-cream transition-colors">Gallery</a></li>
+        <li><a href="#events" class="hover:text-cream transition-colors">Events</a></li>
+        <li><a href="#blog" class="hover:text-cream transition-colors">Blog</a></li>
+      </ul>
+    </div>
+    <div>
+      <p class="font-mono text-xs uppercase tracking-widest text-ember mb-4">Company</p>
+      <ul class="space-y-2 text-sm">
+        <li><a href="#about" class="hover:text-cream transition-colors">Our Story</a></li>
+        <li><a href="#contact" class="hover:text-cream transition-colors">Contact</a></li>
+        <li><a href="admin.html" class="hover:text-cream transition-colors">Staff Dashboard</a></li>
+      </ul>
+    </div>
+    <div>
+      <p class="font-mono text-xs uppercase tracking-widest text-ember mb-4">Visit</p>
+      <p class="text-sm">14 Oak Street, Kampala, Uganda</p>
+      <p class="text-sm mt-1">+256 700 000 000</p>
+    </div>
+  </div>
+  <div class="max-w-7xl mx-auto mt-10 pt-6 border-t border-parchment/10 text-xs flex flex-col sm:flex-row justify-between gap-2">
+    <p>&copy; 2026 Ember & Oak Coffeehouse. All rights reserved.</p>
+    <p>Design &amp; build: original template, images via Unsplash.</p>
+  </div>
+</footer>
+
+<!-- ================= CART DRAWER ================= -->
+<div id="cart-overlay" class="fixed inset-0 bg-espresso/60 backdrop-blur-sm z-[85] hidden"></div>
+<aside id="cart-drawer" class="fixed top-0 right-0 h-full w-full sm:w-[420px] bg-cream dark:bg-espresso z-[90] translate-x-full transition-transform duration-500 flex flex-col shadow-2xl">
+  <div class="flex items-center justify-between px-6 py-5 border-b border-bark/10 dark:border-parchment/10">
+    <h3 class="font-display font-semibold text-xl">Your Order</h3>
+    <button id="cart-close-btn" aria-label="Close cart" class="w-9 h-9 rounded-full grid place-items-center glass-btn"><i class="fa-solid fa-xmark"></i></button>
+  </div>
+
+  <div id="cart-items" class="flex-1 overflow-y-auto px-6 py-4 space-y-4"></div>
+
+  <div id="cart-empty" class="flex-1 flex flex-col items-center justify-center text-center px-6 text-bark/50 dark:text-parchment/50">
+    <i class="fa-solid fa-mug-hot text-4xl mb-3"></i>
+    <p>Your cart is empty. Add something warm from the menu.</p>
+  </div>
+
+  <div class="px-6 py-5 border-t border-bark/10 dark:border-parchment/10 space-y-4">
+    <!-- Delivery / pickup -->
+    <div class="grid grid-cols-2 gap-2">
+      <button class="fulfil-btn active" data-fulfil="pickup">Pickup</button>
+      <button class="fulfil-btn" data-fulfil="delivery">Delivery</button>
+    </div>
+    <!-- Promo code -->
+    <div class="flex gap-2">
+      <input id="promo-input" type="text" placeholder="Promo code" class="flex-1 px-4 py-2.5 rounded-full text-sm border border-bark/15 dark:border-parchment/15 bg-transparent focus:outline-none focus:ring-2 focus:ring-caramel">
+      <button id="promo-apply-btn" class="px-4 py-2.5 rounded-full text-sm font-semibold bg-bark/10 dark:bg-parchment/10 hover:bg-bark/20 dark:hover:bg-parchment/20 transition-colors">Apply</button>
+    </div>
+    <p id="promo-msg" class="text-xs hidden"></p>
+
+    <div class="space-y-1 font-mono text-sm">
+      <div class="flex justify-between"><span>Subtotal</span><span id="cart-subtotal">$0.00</span></div>
+      <div class="flex justify-between"><span>Discount</span><span id="cart-discount">-$0.00</span></div>
+      <div class="flex justify-between"><span id="cart-fee-label">Delivery Fee</span><span id="cart-fee">$0.00</span></div>
+      <div class="flex justify-between text-base font-bold border-t border-bark/10 dark:border-parchment/10 pt-2 mt-2"><span>Total</span><span id="cart-total">$0.00</span></div>
+    </div>
+
+    <button id="checkout-btn" class="w-full bg-caramel hover:bg-rust text-cream font-semibold py-4 rounded-full transition-all duration-300 hover:shadow-warm">
+      Proceed to Checkout
+    </button>
+  </div>
+</aside>
+
+<!-- ================= CHECKOUT MODAL ================= -->
+<div id="checkout-overlay" class="fixed inset-0 bg-espresso/70 backdrop-blur-sm z-[95] hidden items-center justify-center p-4">
+  <div class="bg-cream dark:bg-espresso rounded-4xl max-w-lg w-full max-h-[90vh] overflow-y-auto p-8 relative shadow-warm">
+    <button id="checkout-close-btn" aria-label="Close checkout" class="absolute top-5 right-5 w-9 h-9 rounded-full grid place-items-center glass-btn"><i class="fa-solid fa-xmark"></i></button>
+
+    <div id="checkout-step-1">
+      <p class="eyebrow">Checkout &middot; Step 1 of 2</p>
+      <h3 class="font-display font-semibold text-2xl mt-1 mb-6">Payment Details</h3>
+      <form id="payment-form" class="space-y-4">
+        <div class="form-group">
+          <label for="pay-name">Name on Card</label>
+          <input id="pay-name" type="text" required placeholder="Jordan Blake">
+        </div>
+        <div class="form-group">
+          <label for="pay-card">Card Number</label>
+          <input id="pay-card" type="text" inherit inputmode="numeric" maxlength="19" required placeholder="4242 4242 4242 4242">
+        </div>
+        <div class="grid grid-cols-2 gap-4">
+          <div class="form-group">
+            <label for="pay-exp">Expiry</label>
+            <input id="pay-exp" type="text" required placeholder="MM/YY" maxlength="5">
+          </div>
+          <div class="form-group">
+            <label for="pay-cvc">CVC</label>
+            <input id="pay-cvc" type="text" required placeholder="123" maxlength="4">
+          </div>
+        </div>
+        <p class="text-xs text-bark/50 dark:text-parchment/50 flex items-center gap-2"><i class="fa-solid fa-lock"></i> Demo payment UI — no real transaction is processed.</p>
+        <button type="submit" class="w-full bg-caramel hover:bg-rust text-cream font-semibold py-4 rounded-full transition-all duration-300">Pay & Place Order</button>
+      </form>
+    </div>
+
+    <div id="checkout-step-2" class="hidden text-center py-6">
+      <div class="w-16 h-16 rounded-full bg-caramel/15 grid place-items-center mx-auto mb-4">
+        <i class="fa-solid fa-check text-caramel text-2xl"></i>
+      </div>
+      <h3 class="font-display font-semibold text-2xl">Order confirmed!</h3>
+      <p class="mt-2 text-bark/70 dark:text-parchment/70">Order <span id="order-number" class="font-mono font-bold"></span> is on its way. We've sent a confirmation to your email.</p>
+      <button id="checkout-done-btn" class="mt-6 bg-bark/10 dark:bg-parchment/10 hover:bg-bark/20 dark:hover:bg-parchment/20 px-6 py-3 rounded-full font-semibold transition-colors">Done</button>
+    </div>
+  </div>
+</div>
+
+<!-- ================= RESERVATION CONFIRMATION MODAL ================= -->
+<div id="reservation-modal" class="fixed inset-0 bg-espresso/70 backdrop-blur-sm z-[95] hidden items-center justify-center p-4">
+  <div class="bg-cream dark:bg-espresso rounded-4xl max-w-md w-full p-8 relative shadow-warm text-center">
+    <button id="reservation-modal-close" aria-label="Close" class="absolute top-5 right-5 w-9 h-9 rounded-full grid place-items-center glass-btn"><i class="fa-solid fa-xmark"></i></button>
+    <div class="w-16 h-16 rounded-full bg-caramel/15 grid place-items-center mx-auto mb-4">
+      <i class="fa-solid fa-mug-saucer text-caramel text-2xl"></i>
+    </div>
+    <h3 class="font-display font-semibold text-2xl">Table reserved!</h3>
+    <p id="reservation-modal-text" class="mt-2 text-bark/70 dark:text-parchment/70"></p>
+    <button id="reservation-modal-done" class="mt-6 bg-caramel text-cream px-6 py-3 rounded-full font-semibold">Great, thanks!</button>
+  </div>
+</div>
+
+<!-- ================= FLOATING UI: back-to-top, whatsapp, chat ================= -->
+<div class="fixed bottom-6 right-6 z-[60] flex flex-col items-end gap-3">
+  <button id="chat-toggle-btn" aria-label="Open live chat" class="w-14 h-14 rounded-full bg-bark dark:bg-parchment text-cream dark:text-espresso grid place-items-center shadow-warm hover:-translate-y-1 transition-transform">
+    <i class="fa-solid fa-comment-dots text-lg"></i>
+  </button>
+  <a href="https://wa.me/256700000000" target="_blank" rel="noopener" aria-label="Chat on WhatsApp" class="w-14 h-14 rounded-full bg-[#25D366] text-white grid place-items-center shadow-warm hover:-translate-y-1 transition-transform">
+    <i class="fa-brands fa-whatsapp text-2xl"></i>
+  </a>
+  <button id="back-to-top-btn" aria-label="Back to top" class="w-11 h-11 rounded-full glass-btn grid place-items-center opacity-0 pointer-events-none transition-all">
+    <i class="fa-solid fa-arrow-up"></i>
+  </button>
+</div>
+
+<!-- Live chat widget panel -->
+<div id="chat-panel" class="fixed bottom-24 right-6 z-[60] w-[320px] max-w-[calc(100vw-3rem)] glass-card hidden flex-col overflow-hidden">
+  <div class="bg-caramel text-cream px-5 py-4 flex items-center justify-between">
+    <div class="flex items-center gap-2">
+      <span class="w-2.5 h-2.5 rounded-full bg-ember animate-pulse"></span>
+      <p class="font-semibold text-sm">Ember & Oak Support</p>
+    </div>
+    <button id="chat-close-btn" aria-label="Close chat" class="text-cream/80 hover:text-cream"><i class="fa-solid fa-xmark"></i></button>
+  </div>
+  <div id="chat-messages" class="p-4 space-y-3 h-64 overflow-y-auto text-sm">
+    <div class="chat-bubble bot">Hi! 👋 I'm the Ember & Oak demo assistant. Ask about hours, reservations, or the menu.</div>
+  </div>
+  <form id="chat-form" class="flex gap-2 p-3 border-t border-bark/10 dark:border-parchment/10">
+    <input id="chat-input" type="text" placeholder="Type a message…" class="flex-1 px-4 py-2 rounded-full text-sm border border-bark/15 dark:border-parchment/15 bg-transparent focus:outline-none focus:ring-2 focus:ring-caramel">
+    <button type="submit" aria-label="Send" class="w-9 h-9 rounded-full bg-caramel text-cream grid place-items-center"><i class="fa-solid fa-paper-plane text-xs"></i></button>
+  </form>
+</div>
+
+<!-- ================= COOKIE CONSENT ================= -->
+<div id="cookie-banner" class="fixed bottom-0 inset-x-0 z-[75] hidden">
+  <div class="max-w-3xl mx-auto m-4 glass-card p-5 flex flex-col sm:flex-row items-center gap-4">
+    <p class="text-sm flex-1 text-center sm:text-left">We use cookies to remember your cart and preferences. Nothing creepy, promise.</p>
+    <div class="flex gap-2 shrink-0">
+      <button id="cookie-decline" class="px-4 py-2 rounded-full text-sm font-semibold bg-bark/10 dark:bg-parchment/10">Decline</button>
+      <button id="cookie-accept" class="px-4 py-2 rounded-full text-sm font-semibold bg-caramel text-cream">Accept</button>
+    </div>
+  </div>
 </div>
 
 <script>
-  // Sidebar panel switching
-  const links = document.querySelectorAll('.side-link[data-panel]');
-  links.forEach(link => link.addEventListener('click', () => {
-    links.forEach(l => l.classList.remove('active'));
-    link.classList.add('active');
-    document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
-    document.getElementById('panel-' + link.dataset.panel).classList.add('active');
-    document.getElementById('panel-title').textContent = link.textContent.trim();
-  }));
+/* =========================================================================
+   EMBER & OAK — APP.JS
+   Vanilla JS, no build step. Organized into small modules, each with a
+   single job, initialized from the bottom `init()` call. Replace the DATA
+   objects below to re-skin the menu, gallery, or testimonials — nothing
+   else needs to change.
+   ========================================================================= */
 
-  // Theme toggle (shares the same localStorage key as the main site)
-  const themeBtn = document.getElementById('admin-theme-toggle');
-  if (localStorage.getItem('eo-theme') === 'dark') document.documentElement.classList.add('dark');
-  themeBtn.addEventListener('click', () => {
+/* ======================= 1. DATA ======================= */
+
+// Every menu item the site knows about. `category` drives the filter tabs.
+// `popular` and `seasonal` add badges. Add/remove items freely.
+const MENU_DATA = [
+  { id: 'esp-01', name: 'Single-Origin Espresso', category: 'coffee', price: 3.5, popular: true,
+    desc: 'Ethiopian Yirgacheffe, bright and floral.', img: 'https://images.unsplash.com/photo-1610889556528-9a770e32642f?w=600&q=80' },
+  { id: 'esp-02', name: 'Oat Milk Cortado', category: 'coffee', price: 4.5, popular: false,
+    desc: 'Equal parts espresso and steamed oat milk.', img: 'https://images.unsplash.com/photo-1461023058943-07fcbe16d735?w=600&q=80' },
+  { id: 'esp-03', name: 'Pour-Over of the Day', category: 'coffee', price: 5.0, popular: false,
+    desc: 'Rotating single-origin, brewed to order.', img: 'https://images.unsplash.com/photo-1495474472287-4d71bcdd2085?w=600&q=80' },
+  { id: 'tea-01', name: 'Jasmine Pearl Tea', category: 'tea', price: 4.0, popular: false,
+    desc: 'Hand-rolled green tea, floral and light.', img: 'https://images.unsplash.com/photo-1564890369478-c89ca6d9cde9?w=600&q=80' },
+  { id: 'tea-02', name: 'Spiced Chai Latte', category: 'tea', price: 4.5, popular: true,
+    desc: 'House chai concentrate, steamed milk.', img: 'https://images.unsplash.com/photo-1571934811356-5cc061b6821f?w=600&q=80' },
+  { id: 'bf-01', name: 'Sourdough Avocado Toast', category: 'breakfast', price: 8.5, popular: true,
+    desc: 'Smashed avocado, chili flake, soft egg.', img: 'https://images.unsplash.com/photo-1525351484163-7529414344d8?w=600&q=80' },
+  { id: 'bf-02', name: 'Buttermilk Pancake Stack', category: 'breakfast', price: 9.0, popular: false,
+    desc: 'Maple syrup, whipped butter, berries.', img: 'https://images.unsplash.com/photo-1528207776546-365bb710ee93?w=600&q=80' },
+  { id: 'ln-01', name: 'Roasted Veg Grain Bowl', category: 'lunch', price: 11.5, popular: false,
+    desc: 'Farro, seasonal roots, tahini dressing.', img: 'https://images.unsplash.com/photo-1512621776951-a57141f2eefd?w=600&q=80' },
+  { id: 'ln-02', name: 'Smoked Turkey Panini', category: 'lunch', price: 10.5, popular: true,
+    desc: 'Smoked turkey, provolone, fig jam, ciabatta.', img: 'https://images.unsplash.com/photo-1481070555726-e2fe8357725c?w=600&q=80' },
+  { id: 'dn-01', name: 'Braised Short Rib Plate', category: 'dinner', price: 18.0, popular: true,
+    desc: 'Red-wine braise, root mash, charred greens.', img: 'https://images.unsplash.com/photo-1544025162-d76694265947?w=600&q=80' },
+  { id: 'dn-02', name: 'Wild Mushroom Risotto', category: 'dinner', price: 15.5, popular: false,
+    desc: 'Arborio rice, wild mushrooms, parmesan.', img: 'https://images.unsplash.com/photo-1476124369491-e7addf5db371?w=600&q=80' },
+  { id: 'ds-01', name: 'Basque Burnt Cheesecake', category: 'dessert', price: 6.5, popular: true,
+    desc: 'Caramelized top, creamy center.', img: 'https://images.unsplash.com/photo-1524351199678-941a58a3df50?w=600&q=80' },
+  { id: 'ds-02', name: 'Dark Chocolate Tart', category: 'dessert', price: 6.0, popular: false,
+    desc: '70% cacao ganache, sea salt.', img: 'https://images.unsplash.com/photo-1551024506-0bccd828d307?w=600&q=80' },
+  { id: 'dr-01', name: 'Sparkling Yuzu Cooler', category: 'drinks', price: 5.0, popular: false,
+    desc: 'Yuzu, soda, fresh mint.', img: 'https://images.unsplash.com/photo-1544145945-f90425340c7e?w=600&q=80' },
+  { id: 'dr-02', name: 'Cold Brew on Tap', category: 'drinks', price: 4.5, popular: true,
+    desc: '18-hour steep, served over ice.', img: 'https://images.unsplash.com/photo-1517701604599-bb29b565090c?w=600&q=80' },
+  { id: 'se-01', name: 'Cardamom Honey Latte', category: 'seasonal', price: 5.5, popular: true, seasonal: true,
+    desc: "This season's signature drink.", img: 'https://images.unsplash.com/photo-1509042239860-f550ce710b93?w=600&q=80' },
+  { id: 'se-02', name: 'Spiced Pumpkin Scone', category: 'seasonal', price: 4.0, popular: false, seasonal: true,
+    desc: 'Warm spice, brown-butter glaze.', img: 'https://images.unsplash.com/photo-1470124182917-cc6e71b22ecc?w=600&q=80' },
+];
+
+// Gallery images. `cat` drives the gallery filter tabs.
+const GALLERY_DATA = [
+  { cat: 'drinks', h: 320, img: 'https://images.unsplash.com/photo-1447933601403-0c6688de566e?w=700&q=80', caption: 'Latte art, table three' },
+  { cat: 'space',  h: 420, img: 'https://images.unsplash.com/photo-1498804103079-a6351b050096?w=700&q=80', caption: 'Morning light on the bar' },
+  { cat: 'food',   h: 300, img: 'https://images.unsplash.com/photo-1525351484163-7529414344d8?w=700&q=80', caption: 'Sourdough avocado toast' },
+  { cat: 'people', h: 380, img: 'https://images.unsplash.com/photo-1521017432531-fbd92d768814?w=700&q=80', caption: 'Regulars on a Tuesday' },
+  { cat: 'drinks', h: 260, img: 'https://images.unsplash.com/photo-1495474472287-4d71bcdd2085?w=700&q=80', caption: 'Beans, freshly roasted' },
+  { cat: 'space',  h: 340, img: 'https://images.unsplash.com/photo-1453614512568-c4024d13c247?w=700&q=80', caption: 'The corner reading nook' },
+  { cat: 'food',   h: 400, img: 'https://images.unsplash.com/photo-1509042239860-f550ce710b93?w=700&q=80', caption: 'Cardamom honey latte' },
+  { cat: 'people', h: 300, img: 'https://images.unsplash.com/photo-1453614512568-c4024d13c247?w=700&q=80', caption: 'Sam behind the bar' },
+  { cat: 'space',  h: 300, img: 'https://images.unsplash.com/photo-1442512595331-e89e73853f31?w=700&q=80', caption: 'Cupping table, Saturday' },
+  { cat: 'food',   h: 360, img: 'https://images.unsplash.com/photo-1481391319762-47dff72954d9?w=700&q=80', caption: 'Fresh from the pastry case' },
+];
+
+const TESTIMONIALS_DATA = [
+  { name: 'Priya N.', stars: 5, text: 'The cold brew is criminally good and the staff remember my order after one visit. My daily non-negotiable stop.', avatar: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=150&q=80' },
+  { name: 'Daniel K.', stars: 5, text: 'Booked a private evening for a small launch — the team handled everything and the food was better than most restaurants.', avatar: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=150&q=80' },
+  { name: 'Wanjiru M.', stars: 4, text: 'Quietest corner in the city for a Saturday morning of work, and the pour-over flight taught me more than I expected.', avatar: 'https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=150&q=80' },
+];
+
+/* ======================= 2. STATE ======================= */
+
+const state = {
+  cart: [],              // { id, name, price, qty }
+  activeMenuFilter: 'all',
+  activeGalleryFilter: 'all',
+  lightboxIndex: 0,
+  filteredGallery: GALLERY_DATA,
+  fulfilment: 'pickup',
+  promo: null,           // { code, discountPct }
+  testimonialIndex: 0,
+};
+
+const PROMO_CODES = { EMBER10: 0.10, OAKFAM: 0.15 };
+const DELIVERY_FEE = 3.5;
+
+/* ======================= 3. LOADER ======================= */
+function initLoader() {
+  window.addEventListener('load', () => {
+    setTimeout(() => document.getElementById('loader').classList.add('loader-hidden'), 500);
+  });
+  // Fallback in case 'load' already fired
+  setTimeout(() => document.getElementById('loader')?.classList.add('loader-hidden'), 2500);
+}
+
+/* ======================= 4. CUSTOM CURSOR ======================= */
+function initCursor() {
+  const dot = document.getElementById('cursor-dot');
+  const ring = document.getElementById('cursor-ring');
+  if (!dot || !ring || window.matchMedia('(pointer: coarse)').matches) return;
+
+  let ringX = 0, ringY = 0;
+  window.addEventListener('mousemove', (e) => {
+    dot.style.left = e.clientX + 'px';
+    dot.style.top = e.clientY + 'px';
+    ringX = e.clientX; ringY = e.clientY;
+  });
+  (function loop() {
+    ring.style.left = ringX + 'px';
+    ring.style.top = ringY + 'px';
+    requestAnimationFrame(loop);
+  })();
+
+  document.querySelectorAll('a, button').forEach((el) => {
+    el.addEventListener('mouseenter', () => ring.classList.add('grow'));
+    el.addEventListener('mouseleave', () => ring.classList.remove('grow'));
+  });
+}
+
+/* ======================= 5. SCROLL PROGRESS + NAV STATE + PARALLAX ======================= */
+function initScrollEffects() {
+  const progress = document.getElementById('scroll-progress');
+  const nav = document.getElementById('site-nav');
+  const backToTop = document.getElementById('back-to-top-btn');
+  const parallaxEls = document.querySelectorAll('[data-parallax]');
+
+  function onScroll() {
+    const scrollTop = window.scrollY;
+    const docHeight = document.documentElement.scrollHeight - window.innerHeight;
+    progress.style.width = (docHeight > 0 ? (scrollTop / docHeight) * 100 : 0) + '%';
+
+    nav.classList.toggle('scrolled', scrollTop > 40);
+
+    if (scrollTop > 500) {
+      backToTop.classList.remove('opacity-0', 'pointer-events-none');
+    } else {
+      backToTop.classList.add('opacity-0', 'pointer-events-none');
+    }
+
+    parallaxEls.forEach((el) => {
+      const speed = parseFloat(el.dataset.parallax) || 0.2;
+      el.style.transform = `translateY(${scrollTop * speed}px)`;
+    });
+  }
+  document.addEventListener('scroll', onScroll, { passive: true });
+  onScroll();
+
+  backToTop.addEventListener('click', () => window.scrollTo({ top: 0, behavior: 'smooth' }));
+}
+
+/* ======================= 6. SCROLL REVEAL (fade-up / image reveal) ======================= */
+function initRevealAnimations() {
+  const targets = document.querySelectorAll('.reveal-up, .img-reveal');
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach((entry) => {
+      if (entry.isIntersecting) {
+        entry.target.classList.add('in-view');
+        observer.unobserve(entry.target);
+      }
+    });
+  }, { threshold: 0.15 });
+  targets.forEach((el) => observer.observe(el));
+}
+
+/* ======================= 7. ANIMATED COUNTERS ======================= */
+function initCounters() {
+  const counters = document.querySelectorAll('.counter');
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach((entry) => {
+      if (!entry.isIntersecting) return;
+      const el = entry.target;
+      const target = parseInt(el.dataset.target, 10);
+      const duration = 1600;
+      const start = performance.now();
+      function tick(now) {
+        const progress = Math.min((now - start) / duration, 1);
+        const eased = 1 - Math.pow(1 - progress, 3); // ease-out-cubic
+        el.textContent = Math.floor(eased * target).toLocaleString();
+        if (progress < 1) requestAnimationFrame(tick);
+        else el.textContent = target.toLocaleString();
+      }
+      requestAnimationFrame(tick);
+      observer.unobserve(el);
+    });
+  }, { threshold: 0.5 });
+  counters.forEach((el) => observer.observe(el));
+}
+
+/* ======================= 8. NAVIGATION (mobile menu + smooth close) ======================= */
+function initNav() {
+  const btn = document.getElementById('mobile-menu-btn');
+  const menu = document.getElementById('mobile-menu');
+  btn.addEventListener('click', () => {
+    const isOpen = !menu.classList.contains('hidden');
+    menu.classList.toggle('hidden');
+    menu.classList.toggle('flex');
+    btn.querySelector('i').className = isOpen ? 'fa-solid fa-bars text-sm' : 'fa-solid fa-xmark text-sm';
+  });
+  menu.querySelectorAll('a').forEach((a) => a.addEventListener('click', () => {
+    menu.classList.add('hidden');
+    menu.classList.remove('flex');
+    btn.querySelector('i').className = 'fa-solid fa-bars text-sm';
+  }));
+}
+
+/* ======================= 9. DARK / LIGHT MODE ======================= */
+function initThemeToggle() {
+  const toggle = document.getElementById('theme-toggle');
+  const saved = localStorage.getItem('eo-theme');
+  if (saved === 'dark' || (!saved && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+    document.documentElement.classList.add('dark');
+  }
+  toggle.addEventListener('click', () => {
     document.documentElement.classList.toggle('dark');
     localStorage.setItem('eo-theme', document.documentElement.classList.contains('dark') ? 'dark' : 'light');
   });
+}
 
-  // Demo menu table, mirrors app.js MENU_DATA shape loosely
-  const demoMenu = [
-    { name: 'Single-Origin Espresso', cat: 'Coffee', price: '$3.50', status: 'Active' },
-    { name: 'Spiced Chai Latte', cat: 'Tea', price: '$4.50', status: 'Active' },
-    { name: 'Sourdough Avocado Toast', cat: 'Breakfast', price: '$8.50', status: 'Active' },
-    { name: 'Braised Short Rib Plate', cat: 'Dinner', price: '$18.00', status: 'Active' },
-    { name: 'Cardamom Honey Latte', cat: 'Seasonal', price: '$5.50', status: 'Seasonal' },
-    { name: 'Spiced Pumpkin Scone', cat: 'Seasonal', price: '$4.00', status: 'Out of Stock' },
-  ];
-  document.getElementById('admin-menu-table').innerHTML = demoMenu.map(m => `
-    <tr>
-      <td class="font-semibold">${m.name}</td>
-      <td>${m.cat}</td>
-      <td class="font-mono">${m.price}</td>
-      <td><span class="badge ${m.status === 'Active' ? 'badge-green' : m.status === 'Seasonal' ? 'badge-amber' : 'badge-gray'}">${m.status}</span></td>
-      <td class="text-right"><button class="opacity-60 hover:opacity-100"><i class="fa-solid fa-pen"></i></button></td>
-    </tr>
-  `).join('');
+/* ======================= 10. MENU RENDER + FILTER + CART ADD ======================= */
+function renderMenu() {
+  const grid = document.getElementById('menu-grid');
+  const items = state.activeMenuFilter === 'all'
+    ? MENU_DATA
+    : MENU_DATA.filter((i) => i.category === state.activeMenuFilter);
 
-  // Demo gallery grid
-  const demoGallery = [
-    'https://images.unsplash.com/photo-1447933601403-0c6688de566e?w=300&q=70',
-    'https://images.unsplash.com/photo-1498804103079-a6351b050096?w=300&q=70',
-    'https://images.unsplash.com/photo-1525351484163-7529414344d8?w=300&q=70',
-    'https://images.unsplash.com/photo-1521017432531-fbd92d768814?w=300&q=70',
-    'https://images.unsplash.com/photo-1495474472287-4d71bcdd2085?w=300&q=70',
-    'https://images.unsplash.com/photo-1453614512568-c4024d13c247?w=300&q=70',
-  ];
-  document.getElementById('admin-gallery-grid').innerHTML = demoGallery.map(src => `
-    <div class="aspect-square rounded-xl overflow-hidden relative group">
-      <img src="${src}" class="w-full h-full object-cover" loading="lazy">
-      <button class="absolute inset-0 bg-espresso/50 opacity-0 group-hover:opacity-100 transition-opacity grid place-items-center text-cream">
-        <i class="fa-solid fa-trash-can"></i>
-      </button>
+  grid.innerHTML = items.map((item) => `
+    <div class="ticket-card reveal-up in-view" data-id="${item.id}">
+      ${item.popular ? '<span class="ticket-stamp">Popular</span>' : ''}
+      <img src="${item.img}" alt="${item.name}" loading="lazy" class="ticket-img">
+      <div class="pt-4 pb-4">
+        <div class="flex items-start justify-between gap-3">
+          <h3 class="font-display font-semibold text-lg leading-tight">${item.name}</h3>
+          <span class="ticket-price shrink-0">$${item.price.toFixed(2)}</span>
+        </div>
+        <p class="text-sm mt-1.5 text-bark/65 dark:text-parchment/65">${item.desc}</p>
+      </div>
+      <div class="flex items-center justify-between pt-3">
+        <div class="qty-control">
+          <button class="qty-btn" data-action="dec" data-id="${item.id}" aria-label="Decrease quantity">−</button>
+          <span class="w-6 text-center font-mono text-sm" id="qty-${item.id}">1</span>
+          <button class="qty-btn" data-action="inc" data-id="${item.id}" aria-label="Increase quantity">+</button>
+        </div>
+        <button class="add-cart-btn" data-action="add" data-id="${item.id}">
+          <i class="fa-solid fa-plus text-xs"></i> Add
+        </button>
+      </div>
     </div>
   `).join('');
+}
+
+function renderSpecials() {
+  const grid = document.getElementById('specials-grid');
+  const specials = MENU_DATA.filter((i) => i.popular || i.seasonal).slice(0, 3);
+  grid.innerHTML = specials.map((item) => `
+    <div class="glass-card p-5 flex gap-4 items-center reveal-up in-view">
+      <img src="${item.img}" alt="${item.name}" loading="lazy" class="w-20 h-20 rounded-2xl object-cover shrink-0">
+      <div>
+        <p class="font-display font-semibold">${item.name}</p>
+        <p class="text-xs mt-1 text-cream/70">${item.desc}</p>
+        <p class="ticket-price text-ember mt-1">$${item.price.toFixed(2)}</p>
+      </div>
+    </div>
+  `).join('');
+}
+
+function initMenuQuantityTracker() {
+  // Keeps a per-card quantity selector in the DOM (before adding to cart)
+  document.getElementById('menu-grid').addEventListener('click', (e) => {
+    const btn = e.target.closest('button');
+    if (!btn) return;
+    const id = btn.dataset.id;
+    const qtyEl = document.getElementById(`qty-${id}`);
+
+    if (btn.dataset.action === 'inc') {
+      qtyEl.textContent = parseInt(qtyEl.textContent, 10) + 1;
+    } else if (btn.dataset.action === 'dec') {
+      qtyEl.textContent = Math.max(1, parseInt(qtyEl.textContent, 10) - 1);
+    } else if (btn.dataset.action === 'add') {
+      const qty = parseInt(qtyEl.textContent, 10);
+      const item = MENU_DATA.find((m) => m.id === id);
+      addToCart(item, qty);
+      qtyEl.textContent = 1;
+      btn.classList.add('added');
+      const original = btn.innerHTML;
+      btn.innerHTML = '<i class="fa-solid fa-check text-xs"></i> Added';
+      setTimeout(() => { btn.classList.remove('added'); btn.innerHTML = original; }, 1200);
+    }
+  });
+}
+
+function initMenuFilters() {
+  const filterBar = document.getElementById('menu-filters');
+  filterBar.addEventListener('click', (e) => {
+    const btn = e.target.closest('.menu-filter-btn');
+    if (!btn) return;
+    filterBar.querySelectorAll('.menu-filter-btn').forEach((b) => b.classList.remove('active'));
+    btn.classList.add('active');
+    state.activeMenuFilter = btn.dataset.filter;
+    renderMenu();
+  });
+}
+
+/* ======================= 11. CART DRAWER ======================= */
+function addToCart(item, qty = 1) {
+  const existing = state.cart.find((c) => c.id === item.id);
+  if (existing) existing.qty += qty;
+  else state.cart.push({ id: item.id, name: item.name, price: item.price, qty });
+  renderCart();
+  openCart();
+}
+
+function renderCart() {
+  const container = document.getElementById('cart-items');
+  const empty = document.getElementById('cart-empty');
+  const count = document.getElementById('cart-count');
+
+  const totalQty = state.cart.reduce((sum, c) => sum + c.qty, 0);
+  count.textContent = totalQty;
+
+  if (state.cart.length === 0) {
+    container.innerHTML = '';
+    empty.classList.remove('hidden');
+    empty.classList.add('flex');
+  } else {
+    empty.classList.add('hidden');
+    empty.classList.remove('flex');
+    container.innerHTML = state.cart.map((c) => `
+      <div class="flex items-center justify-between gap-3 pb-4 border-b border-bark/10 dark:border-parchment/10">
+        <div class="flex-1">
+          <p class="font-semibold text-sm">${c.name}</p>
+          <p class="text-xs font-mono text-bark/60 dark:text-parchment/60 mt-0.5">$${c.price.toFixed(2)} each</p>
+        </div>
+        <div class="qty-control">
+          <button class="qty-btn" data-cart-action="dec" data-id="${c.id}" aria-label="Decrease quantity">−</button>
+          <span class="w-5 text-center font-mono text-sm">${c.qty}</span>
+          <button class="qty-btn" data-cart-action="inc" data-id="${c.id}" aria-label="Increase quantity">+</button>
+        </div>
+        <button class="text-bark/40 dark:text-parchment/40 hover:text-caramel" data-cart-action="remove" data-id="${c.id}" aria-label="Remove item">
+          <i class="fa-solid fa-trash-can text-sm"></i>
+        </button>
+      </div>
+    `).join('');
+  }
+  recalcTotals();
+}
+
+function recalcTotals() {
+  const subtotal = state.cart.reduce((sum, c) => sum + c.price * c.qty, 0);
+  const discount = state.promo ? subtotal * state.promo.discountPct : 0;
+  const fee = state.fulfilment === 'delivery' && subtotal > 0 ? DELIVERY_FEE : 0;
+  const total = Math.max(0, subtotal - discount + fee);
+
+  document.getElementById('cart-subtotal').textContent = `$${subtotal.toFixed(2)}`;
+  document.getElementById('cart-discount').textContent = `-$${discount.toFixed(2)}`;
+  document.getElementById('cart-fee-label').textContent = state.fulfilment === 'delivery' ? 'Delivery Fee' : 'Pickup Fee';
+  document.getElementById('cart-fee').textContent = `$${fee.toFixed(2)}`;
+  document.getElementById('cart-total').textContent = `$${total.toFixed(2)}`;
+}
+
+function openCart() {
+  document.getElementById('cart-drawer').classList.add('open');
+  document.getElementById('cart-overlay').classList.remove('hidden');
+}
+function closeCart() {
+  document.getElementById('cart-drawer').classList.remove('open');
+  document.getElementById('cart-overlay').classList.add('hidden');
+}
+
+function initCart() {
+  document.getElementById('cart-open-btn').addEventListener('click', openCart);
+  document.getElementById('cart-close-btn').addEventListener('click', closeCart);
+  document.getElementById('cart-overlay').addEventListener('click', closeCart);
+
+  document.getElementById('cart-items').addEventListener('click', (e) => {
+    const btn = e.target.closest('button');
+    if (!btn) return;
+    const id = btn.dataset.id;
+    const item = state.cart.find((c) => c.id === id);
+    if (!item) return;
+    if (btn.dataset.cartAction === 'inc') item.qty += 1;
+    if (btn.dataset.cartAction === 'dec') item.qty = Math.max(1, item.qty - 1);
+    if (btn.dataset.cartAction === 'remove') state.cart = state.cart.filter((c) => c.id !== id);
+    renderCart();
+  });
+
+  // Pickup / delivery toggle
+  document.querySelectorAll('.fulfil-btn').forEach((btn) => {
+    btn.addEventListener('click', () => {
+      document.querySelectorAll('.fulfil-btn').forEach((b) => b.classList.remove('active'));
+      btn.classList.add('active');
+      state.fulfilment = btn.dataset.fulfil;
+      recalcTotals();
+    });
+  });
+
+  // Promo code
+  document.getElementById('promo-apply-btn').addEventListener('click', () => {
+    const input = document.getElementById('promo-input');
+    const msg = document.getElementById('promo-msg');
+    const code = input.value.trim().toUpperCase();
+    if (PROMO_CODES[code]) {
+      state.promo = { code, discountPct: PROMO_CODES[code] };
+      msg.textContent = `"${code}" applied — ${PROMO_CODES[code] * 100}% off.`;
+      msg.className = 'text-xs text-green-600 dark:text-green-400';
+    } else {
+      state.promo = null;
+      msg.textContent = 'That code is not valid. Try EMBER10 or OAKFAM.';
+      msg.className = 'text-xs text-red-500';
+    }
+    msg.classList.remove('hidden');
+    recalcTotals();
+  });
+
+  document.getElementById('checkout-btn').addEventListener('click', () => {
+    if (state.cart.length === 0) return;
+    closeCart();
+    openCheckout();
+  });
+}
+
+/* ======================= 12. CHECKOUT ======================= */
+function openCheckout() {
+  document.getElementById('checkout-overlay').classList.remove('hidden');
+  document.getElementById('checkout-overlay').classList.add('flex');
+  document.getElementById('checkout-step-1').classList.remove('hidden');
+  document.getElementById('checkout-step-2').classList.add('hidden');
+}
+function closeCheckout() {
+  document.getElementById('checkout-overlay').classList.add('hidden');
+  document.getElementById('checkout-overlay').classList.remove('flex');
+}
+
+function initCheckout() {
+  document.getElementById('checkout-close-btn').addEventListener('click', closeCheckout);
+
+  document.getElementById('payment-form').addEventListener('submit', (e) => {
+    e.preventDefault();
+    const orderNumber = 'EO-' + Math.floor(10000 + Math.random() * 89999);
+    document.getElementById('order-number').textContent = `#${orderNumber}`;
+    document.getElementById('checkout-step-1').classList.add('hidden');
+    document.getElementById('checkout-step-2').classList.remove('hidden');
+    state.cart = [];
+    state.promo = null;
+    renderCart();
+  });
+
+  document.getElementById('checkout-done-btn').addEventListener('click', closeCheckout);
+
+  // Light formatting for card number field
+  document.getElementById('pay-card').addEventListener('input', (e) => {
+    e.target.value = e.target.value.replace(/\D/g, '').slice(0, 16).replace(/(.{4})/g, '$1 ').trim();
+  });
+  document.getElementById('pay-exp').addEventListener('input', (e) => {
+    e.target.value = e.target.value.replace(/\D/g, '').slice(0, 4).replace(/(\d{2})(\d)/, '$1/$2');
+  });
+}
+
+/* ======================= 13. RESERVATIONS ======================= */
+function initReservations() {
+  const form = document.getElementById('reservation-form');
+  const dateInput = document.getElementById('res-date');
+  dateInput.min = new Date().toISOString().split('T')[0];
+
+  document.querySelectorAll('.stepper-btn').forEach((btn) => {
+    btn.addEventListener('click', () => {
+      const input = document.getElementById('res-guests');
+      const dir = parseInt(btn.dataset.dir, 10);
+      let val = parseInt(input.value, 10) + dir;
+      val = Math.min(12, Math.max(1, val));
+      input.value = val;
+    });
+  });
+
+  form.addEventListener('submit', (e) => {
+    e.preventDefault();
+    if (!form.checkValidity()) { form.reportValidity(); return; }
+    const name = document.getElementById('res-name').value;
+    const date = document.getElementById('res-date').value;
+    const time = document.getElementById('res-time').value;
+    const guests = document.getElementById('res-guests').value;
+
+    document.getElementById('reservation-modal-text').textContent =
+      `Thanks, ${name}! We've held a table for ${guests} on ${date} at ${time}. A confirmation text is on its way.`;
+    showReservationModal();
+    form.reset();
+    document.getElementById('res-guests').value = 2;
+  });
+
+  document.getElementById('reservation-modal-close').addEventListener('click', hideReservationModal);
+  document.getElementById('reservation-modal-done').addEventListener('click', hideReservationModal);
+
+  // Event "book" buttons scroll to the reservation form and pre-fill notes
+  document.querySelectorAll('.event-book-btn').forEach((btn) => {
+    btn.addEventListener('click', () => {
+      document.getElementById('res-notes').value = `Interested in: ${btn.dataset.event}`;
+      document.getElementById('reservations').scrollIntoView({ behavior: 'smooth' });
+    });
+  });
+}
+function showReservationModal() {
+  const modal = document.getElementById('reservation-modal');
+  modal.classList.remove('hidden');
+  modal.classList.add('flex');
+}
+function hideReservationModal() {
+  const modal = document.getElementById('reservation-modal');
+  modal.classList.add('hidden');
+  modal.classList.remove('flex');
+}
+
+/* ======================= 14. LIVE OCCUPANCY (demo) ======================= */
+function initOccupancy() {
+  const labelEl = document.getElementById('occupancy-label');
+  const countEl = document.getElementById('occupancy-count');
+  const tickerEl = document.getElementById('ticker-occupancy');
+  const CAPACITY = 40;
+
+  function tick() {
+    const seated = Math.floor(Math.random() * CAPACITY);
+    const pct = seated / CAPACITY;
+    const label = pct < 0.4 ? 'Quiet' : pct < 0.75 ? 'Moderate' : 'Busy';
+    if (countEl) countEl.textContent = seated;
+    if (labelEl) labelEl.textContent = label;
+    if (tickerEl) tickerEl.textContent = label;
+  }
+  tick();
+  setInterval(tick, 15000);
+}
+
+/* ======================= 15. GALLERY + LIGHTBOX ======================= */
+function renderGallery() {
+  const grid = document.getElementById('gallery-grid');
+  const data = state.activeGalleryFilter === 'all'
+    ? GALLERY_DATA
+    : GALLERY_DATA.filter((g) => g.cat === state.activeGalleryFilter);
+  state.filteredGallery = data;
+
+  grid.innerHTML = data.map((g, i) => `
+    <div class="masonry-item reveal-up in-view" data-index="${i}">
+      <img src="${g.img}" alt="${g.caption}" loading="lazy" style="height:${g.h}px; width:100%; object-fit:cover;">
+      <div class="gallery-cap">${g.caption}</div>
+    </div>
+  `).join('');
+}
+
+function initGallery() {
+  const filterBar = document.getElementById('gallery-filters');
+  filterBar.addEventListener('click', (e) => {
+    const btn = e.target.closest('.menu-filter-btn');
+    if (!btn) return;
+    filterBar.querySelectorAll('.menu-filter-btn').forEach((b) => b.classList.remove('active'));
+    btn.classList.add('active');
+    state.activeGalleryFilter = btn.dataset.gfilter;
+    renderGallery();
+  });
+
+  document.getElementById('gallery-grid').addEventListener('click', (e) => {
+    const item = e.target.closest('.masonry-item');
+    if (!item) return;
+    state.lightboxIndex = parseInt(item.dataset.index, 10);
+    openLightbox();
+  });
+
+  document.getElementById('lightbox-close').addEventListener('click', closeLightbox);
+  document.getElementById('lightbox').addEventListener('click', (e) => {
+    if (e.target.id === 'lightbox') closeLightbox();
+  });
+  document.getElementById('lightbox-prev').addEventListener('click', () => stepLightbox(-1));
+  document.getElementById('lightbox-next').addEventListener('click', () => stepLightbox(1));
+  document.addEventListener('keydown', (e) => {
+    if (document.getElementById('lightbox').classList.contains('hidden')) return;
+    if (e.key === 'Escape') closeLightbox();
+    if (e.key === 'ArrowLeft') stepLightbox(-1);
+    if (e.key === 'ArrowRight') stepLightbox(1);
+  });
+}
+
+function openLightbox() {
+  const lb = document.getElementById('lightbox');
+  lb.classList.remove('hidden');
+  lb.classList.add('flex');
+  updateLightboxImage();
+}
+function closeLightbox() {
+  const lb = document.getElementById('lightbox');
+  lb.classList.add('hidden');
+  lb.classList.remove('flex');
+}
+function stepLightbox(dir) {
+  const len = state.filteredGallery.length;
+  state.lightboxIndex = (state.lightboxIndex + dir + len) % len;
+  updateLightboxImage();
+}
+function updateLightboxImage() {
+  const g = state.filteredGallery[state.lightboxIndex];
+  const img = document.getElementById('lightbox-img');
+  img.src = g.img.replace('w=700', 'w=1400');
+  img.alt = g.caption;
+}
+
+/* ======================= 16. TESTIMONIALS CAROUSEL ======================= */
+function renderTestimonials() {
+  const track = document.getElementById('testimonial-track');
+  const dots = document.getElementById('testimonial-dots');
+
+  track.innerHTML = TESTIMONIALS_DATA.map((t, i) => `
+    <div class="testimonial-slide ${i === 0 ? 'active' : ''}" data-index="${i}">
+      <img src="${t.avatar}" alt="${t.name}" class="w-16 h-16 rounded-full object-cover mx-auto mb-4 border-2 border-ember">
+      <div class="stars mb-3">${'<i class="fa-solid fa-star"></i>'.repeat(t.stars)}${'<i class="fa-regular fa-star"></i>'.repeat(5 - t.stars)}</div>
+      <p class="font-display text-xl md:text-2xl leading-snug">&ldquo;${t.text}&rdquo;</p>
+      <p class="mt-4 font-mono text-xs uppercase tracking-widest text-ember">${t.name}</p>
+    </div>
+  `).join('');
+
+  dots.innerHTML = TESTIMONIALS_DATA.map((_, i) =>
+    `<button class="testimonial-dot ${i === 0 ? 'active' : ''}" data-index="${i}" aria-label="Show testimonial ${i + 1}"></button>`
+  ).join('');
+}
+
+function goToTestimonial(index) {
+  state.testimonialIndex = index;
+  document.querySelectorAll('.testimonial-slide').forEach((el, i) => el.classList.toggle('active', i === index));
+  document.querySelectorAll('.testimonial-dot').forEach((el, i) => el.classList.toggle('active', i === index));
+}
+
+function initTestimonials() {
+  renderTestimonials();
+  document.getElementById('testimonial-dots').addEventListener('click', (e) => {
+    const btn = e.target.closest('.testimonial-dot');
+    if (!btn) return;
+    goToTestimonial(parseInt(btn.dataset.index, 10));
+  });
+  setInterval(() => {
+    goToTestimonial((state.testimonialIndex + 1) % TESTIMONIALS_DATA.length);
+  }, 6000);
+}
+
+/* ======================= 17. FAQ ACCORDION ======================= */
+function initFAQ() {
+  document.querySelectorAll('.faq-item').forEach((item) => {
+    item.querySelector('.faq-question').addEventListener('click', () => {
+      const wasOpen = item.classList.contains('open');
+      document.querySelectorAll('.faq-item').forEach((i) => i.classList.remove('open'));
+      if (!wasOpen) item.classList.add('open');
+    });
+  });
+}
+
+/* ======================= 18. NEWSLETTER ======================= */
+function initNewsletter() {
+  document.getElementById('newsletter-form').addEventListener('submit', (e) => {
+    e.preventDefault();
+    const msg = document.getElementById('newsletter-msg');
+    msg.textContent = "You're on the list — welcome to the roastery notes.";
+    msg.classList.remove('hidden');
+    e.target.reset();
+  });
+}
+
+/* ======================= 19. CONTACT FORM ======================= */
+function initContactForm() {
+  document.getElementById('contact-form').addEventListener('submit', (e) => {
+    e.preventDefault();
+    const btn = e.target.querySelector('button[type="submit"]');
+    const original = btn.textContent;
+    btn.textContent = 'Message sent ✓';
+    e.target.reset();
+    setTimeout(() => { btn.textContent = original; }, 2500);
+  });
+}
+
+/* ======================= 20. LIVE CHAT WIDGET (demo) ======================= */
+function initChatWidget() {
+  const panel = document.getElementById('chat-panel');
+  const toggleBtn = document.getElementById('chat-toggle-btn');
+  const closeBtn = document.getElementById('chat-close-btn');
+  const form = document.getElementById('chat-form');
+  const input = document.getElementById('chat-input');
+  const messages = document.getElementById('chat-messages');
+
+  function togglePanel(open) {
+    panel.classList.toggle('hidden', !open);
+    panel.classList.toggle('flex', open);
+  }
+  toggleBtn.addEventListener('click', () => togglePanel(panel.classList.contains('hidden')));
+  closeBtn.addEventListener('click', () => togglePanel(false));
+
+  const canned = [
+    { keys: ['hour', 'open', 'close'], reply: "We're open Mon–Fri 07:00–20:00, Sat 08:00–22:00, Sun 08:00–18:00." },
+    { keys: ['reserve', 'table', 'booking'], reply: 'You can book a table in the Reservations section — want me to scroll you there?' },
+    { keys: ['menu', 'food', 'coffee'], reply: 'Our full menu is in the Menu section, filterable by category. Anything specific you\'re craving?' },
+    { keys: ['deliver', 'pickup'], reply: 'Both are available at checkout — just toggle Pickup or Delivery in the cart.' },
+    { keys: ['park'], reply: 'Street parking on Oak Street, plus a public lot one block east.' },
+  ];
+
+  function addMessage(text, from) {
+    const bubble = document.createElement('div');
+    bubble.className = `chat-bubble ${from}`;
+    bubble.textContent = text;
+    messages.appendChild(bubble);
+    messages.scrollTop = messages.scrollHeight;
+  }
+
+  form.addEventListener('submit', (e) => {
+    e.preventDefault();
+    const text = input.value.trim();
+    if (!text) return;
+    addMessage(text, 'user');
+    input.value = '';
+    const lower = text.toLowerCase();
+    const match = canned.find((c) => c.keys.some((k) => lower.includes(k)));
+    setTimeout(() => addMessage(match ? match.reply : "Thanks! A team member will follow up shortly — or try asking about hours, the menu, or reservations.", 'bot'), 500);
+  });
+}
+
+/* ======================= 21. COOKIE CONSENT ======================= */
+function initCookieBanner() {
+  const banner = document.getElementById('cookie-banner');
+  if (!localStorage.getItem('eo-cookie-choice')) {
+    setTimeout(() => banner.classList.remove('hidden'), 1200);
+  }
+  function choose(value) {
+    localStorage.setItem('eo-cookie-choice', value);
+    banner.classList.add('hidden');
+  }
+  document.getElementById('cookie-accept').addEventListener('click', () => choose('accepted'));
+  document.getElementById('cookie-decline').addEventListener('click', () => choose('declined'));
+}
+
+/* ======================= INIT ======================= */
+function init() {
+  initLoader();
+  initCursor();
+  initScrollEffects();
+  initNav();
+  initThemeToggle();
+
+  renderMenu();
+  renderSpecials();
+  initMenuFilters();
+  initMenuQuantityTracker();
+
+  initCart();
+  initCheckout();
+
+  initReservations();
+  initOccupancy();
+
+  renderGallery();
+  initGallery();
+
+  initTestimonials();
+  initFAQ();
+  initNewsletter();
+  initContactForm();
+  initChatWidget();
+  initCookieBanner();
+
+  initRevealAnimations();
+  initCounters();
+}
+
+document.addEventListener('DOMContentLoaded', init);
+
 </script>
 </body>
 </html>

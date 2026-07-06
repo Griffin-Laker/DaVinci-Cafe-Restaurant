@@ -1,78 +1,579 @@
-# DaVinci Cafe — Premium Café Website (Merged, Single-File Version)
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Ember & Oak — Staff Dashboard (Demo)</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,600;0,9..144,700&family=Manrope:wght@400;500;600;700;800&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+<script src="https://cdn.tailwindcss.com"></script>
+<script>
+  tailwind.config = {
+    darkMode: 'class',
+    theme: { extend: {
+      colors: { espresso:'#1B120C', roast:'#4A2E1F', bark:'#2A1D14', cream:'#FAF3E7', parchment:'#F1E4CF', caramel:'#C17A3D', ember:'#E8A94B', rust:'#8C4A2F' },
+      fontFamily: { display: ['"Fraunces"','serif'], body: ['"Manrope"','sans-serif'], mono: ['"Space Mono"','monospace'] },
+    }}
+  };
+</script>
+<style>
+/* =========================================================================
+   EMBER & OAK — CUSTOM STYLES
+   Tailwind (via CDN) handles utility classes and the color/font tokens
+   configured in index.html. This file holds everything Tailwind utilities
+   don't express well: keyframe animations, glassmorphism, the "ticket"
+   menu cards, and a few layout helpers (masonry, timeline).
+   ========================================================================= */
 
-A fully responsive, animated café website built with **HTML5 + Tailwind CSS (CDN) + vanilla JavaScript**.
-No build step, and no separate files to keep together — each `.html` file below is fully
-self-contained (CSS and JS are inlined), so you can open either one directly in a browser
-or upload just that one file anywhere.
+:root{
+  --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
+}
 
-## Files
+* { scroll-behavior: smooth; }
 
-```
-index.html   → the full public site (nav, hero, menu, reservations, gallery, events, blog,
-               testimonials, contact, cart, checkout, modals) — CSS and JS included inline
-admin.html   → the demo staff dashboard (menu, reservations, orders, gallery, inventory) —
-               CSS included inline, static/demo data only
-README.md    → this file
-```
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+    scroll-behavior: auto !important;
+  }
+}
 
-**Editing note:** since this is the merged version, the CSS lives inside a `<style>` tag near
-the top of each HTML file, and the JS lives inside a `<script>` tag near the bottom of
-`index.html`. Find them with Ctrl/Cmd+F for `<style>` or `MENU_DATA`. If you'd rather edit
-CSS/JS as separate files again (often easier for ongoing edits), ask and a split version
-can be regenerated from this one.
+body { -webkit-font-smoothing: antialiased; }
 
-## Why vanilla JS instead of GSAP / React / Framer Motion
+/* ============ LOADING SCREEN ============ */
+#loader { transition: opacity .6s var(--ease-out-expo), visibility .6s; }
+#loader.loader-hidden { opacity: 0; visibility: hidden; pointer-events: none; }
 
-The brief allowed either approach. This build uses dependency-free vanilla JS (IntersectionObserver
-for scroll reveals, CSS keyframes for parallax/floating/marquee effects) so the whole site runs by
-opening a single HTML file — no npm install, no bundler, no CDN version mismatches. If you later want
-to port it to React, the `MENU_DATA`, `GALLERY_DATA`, and `TESTIMONIALS_DATA` arrays at the top of
-`app.js` map directly to component props/state.
+.loader-cup { position: relative; width: 70px; height: 70px; }
+.loader-cup-body {
+  position: absolute; bottom: 0; left: 50%; transform: translateX(-50%);
+  width: 60px; height: 44px; border: 4px solid #E8A94B; border-top: none;
+  border-radius: 0 0 26px 26px;
+  background: linear-gradient(180deg, #C17A3D 0%, #4A2E1F 100%);
+  animation: cupFill 1.6s ease-in-out infinite;
+}
+@keyframes cupFill { 0%,100% { opacity: .6 } 50% { opacity: 1 } }
+.loader-steam {
+  position: absolute; bottom: 44px; width: 3px; height: 22px; border-radius: 3px;
+  background: rgba(250,243,231,0.6); left: 50%;
+  animation: steamRise 1.8s ease-in-out infinite;
+}
+.loader-steam.s1 { transform: translateX(-14px); animation-delay: 0s; }
+.loader-steam.s2 { transform: translateX(0); animation-delay: .3s; }
+.loader-steam.s3 { transform: translateX(14px); animation-delay: .6s; }
+@keyframes steamRise {
+  0% { opacity: 0; transform: translate(0,0) scaleY(0.6); }
+  40% { opacity: .8; }
+  100% { opacity: 0; transform: translate(6px,-30px) scaleY(1.3); }
+}
 
-## Editing content
+/* ============ CURSOR EFFECTS ============ */
+.cursor-dot, .cursor-ring {
+  position: fixed; top: 0; left: 0; border-radius: 50%; pointer-events: none;
+  z-index: 65; transform: translate(-50%,-50%);
+}
+.cursor-dot { width: 6px; height: 6px; background: #C17A3D; transition: opacity .2s; }
+.cursor-ring {
+  width: 34px; height: 34px; border: 1.5px solid rgba(193,122,61,0.6);
+  transition: transform .15s var(--ease-out-expo), opacity .2s;
+}
+.cursor-ring.grow { transform: translate(-50%,-50%) scale(1.8); border-color: #E8A94B; }
 
-- **Menu items** → edit the `MENU_DATA` array in `app.js`. Each item needs `id`, `name`, `category`,
-  `price`, `desc`, `img`, and optional `popular` / `seasonal` flags for badges.
-- **Gallery photos** → edit `GALLERY_DATA` in `app.js` (`cat`, `h` for masonry height, `img`, `caption`).
-- **Testimonials** → edit `TESTIMONIALS_DATA` in `app.js`.
-- **Text content** (hero copy, about story, staff names, FAQ, contact info) → edit directly in `index.html`,
-  it's all plain HTML with clear section comments.
-- **Colors/fonts** → edit the `tailwind.config` block at the top of `index.html` (and mirrored in
-  `admin.html`). All custom colors (`espresso`, `roast`, `bark`, `cream`, `parchment`, `caramel`, `ember`,
-  `rust`) are used as Tailwind utility classes like `bg-caramel` or `text-ember`.
-- **Images** — all placeholder photos are from Unsplash (free to use). Swap any `<img src="...">` or
-  `img:` field for your own photography before launch.
+/* ============ SCROLL REVEAL ============ */
+.reveal-up { opacity: 0; transform: translateY(28px); transition: opacity .8s var(--ease-out-expo), transform .8s var(--ease-out-expo); }
+.reveal-up.in-view { opacity: 1; transform: translateY(0); }
 
-## Features included
+.img-reveal { position: relative; }
+.img-reveal::after {
+  content: ''; position: absolute; inset: 0; background: #4A2E1F;
+  transform-origin: right; transform: scaleX(1); transition: transform 1s var(--ease-out-expo);
+}
+.img-reveal.in-view::after { transform: scaleX(0); }
 
-Hero with animated gradient + floating bean/steam particles, sticky glass nav, custom loading screen,
-scroll progress bar, custom cursor (desktop), scroll-reveal + image-reveal animations, animated counters,
-dark/light mode (persisted), full menu with category filters + "popular"/"seasonal" badges + quantity
-selector + add-to-cart, chef's recommendations strip, live occupancy indicator (simulated), reservation
-form with date/time/guest stepper + confirmation modal, masonry gallery with category filters + keyboard-
-navigable lightbox, events section with booking buttons that deep-link to the reservation form, blog
-cards, auto-sliding testimonial carousel with star ratings, FAQ accordion, newsletter form, Instagram
-placeholder grid, contact form + map placeholder + social icons, cart drawer with quantity controls,
-promo codes (`EMBER10`, `OAKFAM`), pickup/delivery toggle with delivery fee, checkout modal with a demo
-payment form and order confirmation, WhatsApp floating button, demo live-chat widget with canned replies,
-cookie consent banner, and a separate demo admin dashboard (`admin.html`) with overview stats, menu
-table, reservations table, orders table, gallery manager, and inventory bars.
+.hover-zoom { transition: transform .7s var(--ease-out-expo); }
+.hover-zoom:hover { transform: scale(1.06); }
 
-## What's intentionally a UI demo, not a live backend
+/* ============ NAVIGATION ============ */
+#site-nav { background: transparent; }
+#site-nav.scrolled {
+  background: rgba(250, 243, 231, 0.75);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  box-shadow: 0 1px 0 rgba(27,18,12,0.06);
+}
+html.dark #site-nav.scrolled { background: rgba(27, 18, 12, 0.75); }
 
-This is a front-end template with no server. To go to production you'd connect:
+#site-nav .nav-text { color: #FAF3E7; }
+#site-nav.scrolled .nav-text { color: #2A1D14; }
+html.dark #site-nav.scrolled .nav-text { color: #F1E4CF; }
 
-- **Reservations & contact/newsletter forms** → a backend endpoint or a form service (e.g. your own API,
-  Formspree, etc.) instead of the current in-page confirmation.
-- **Checkout/payment** → a real payment processor (Stripe, etc.) instead of the demo card form.
-- **Admin dashboard** → real data from your order/reservation database instead of the static arrays in
-  `admin.html`.
-- **Map placeholder** → an embedded Google Maps / Mapbox iframe with your address and API key.
-- **Instagram feed** → the Instagram Basic Display API or a service like SnapWidget/Elfsight.
+.nav-link { position: relative; padding-bottom: 4px; }
+.nav-link::after {
+  content: ''; position: absolute; left: 0; bottom: 0; width: 0; height: 1.5px;
+  background: currentColor; transition: width .3s var(--ease-out-expo);
+}
+.nav-link:hover::after { width: 100%; }
 
-## Accessibility & performance notes
+.mobile-link { padding: .9rem 0; border-bottom: 1px solid rgba(74,46,31,0.08); font-weight: 500; }
+html.dark .mobile-link { border-bottom-color: rgba(241,228,207,0.08); }
 
-- Skip-to-content link, visible focus states via Tailwind's default focus rings on interactive elements,
-  `alt` text on all images, keyboard support in the lightbox (Esc/←/→).
-- `prefers-reduced-motion` is respected — animations collapse to near-instant for users who request it.
-- All images use `loading="lazy"` except nothing above the fold is lazy (hero has no `<img>`, it's CSS).
+.glass-btn {
+  background: rgba(255,255,255,0.12);
+  border: 1px solid rgba(255,255,255,0.25);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  transition: background .3s, transform .3s;
+}
+.glass-btn:hover { background: rgba(255,255,255,0.22); transform: translateY(-2px); }
+#site-nav.scrolled .glass-btn { background: rgba(74,46,31,0.08); border-color: rgba(74,46,31,0.12); }
+#site-nav.scrolled .glass-btn:hover { background: rgba(74,46,31,0.16); }
+html.dark #site-nav.scrolled .glass-btn { background: rgba(241,228,207,0.08); border-color: rgba(241,228,207,0.14); }
+
+/* ============ HERO ============ */
+.hero-gradient {
+  background:
+    radial-gradient(60% 50% at 20% 20%, rgba(193,122,61,0.35), transparent 60%),
+    radial-gradient(50% 60% at 85% 80%, rgba(232,169,75,0.25), transparent 60%),
+    linear-gradient(180deg, #1B120C 0%, #2A1D14 60%, #1B120C 100%);
+  animation: heroDrift 18s ease-in-out infinite alternate;
+}
+@keyframes heroDrift {
+  0% { filter: hue-rotate(0deg) brightness(1); }
+  100% { filter: hue-rotate(6deg) brightness(1.05); }
+}
+
+.grain-overlay {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.4'/%3E%3C/svg%3E");
+  mix-blend-mode: overlay;
+}
+
+.bean { position: absolute; color: rgba(232,169,75,0.5); font-size: 10px; animation: floatBean 9s ease-in-out infinite; }
+.bean-1 { top: 18%; left: 10%; font-size: 26px; color: rgba(250,243,231,0.15); animation-duration: 12s; }
+.bean-2 { top: 30%; left: 85%; animation-duration: 8s; animation-delay: .5s; }
+.bean-3 { top: 70%; left: 15%; animation-duration: 10s; animation-delay: 1s; }
+.bean-4 { top: 60%; left: 90%; animation-duration: 7s; animation-delay: 1.5s; }
+.bean-5 { top: 82%; left: 55%; animation-duration: 11s; animation-delay: .3s; }
+@keyframes floatBean {
+  0%,100% { transform: translateY(0) rotate(0deg); }
+  50% { transform: translateY(-40px) rotate(180deg); }
+}
+.steam-line { position: absolute; width: 2px; height: 120px; background: linear-gradient(180deg, transparent, rgba(250,243,231,0.15), transparent); animation: steamDrift 14s ease-in-out infinite; }
+.steam-a { top: 0; left: 40%; animation-delay: 0s; }
+.steam-b { top: 0; left: 65%; animation-delay: 3s; }
+@keyframes steamDrift { 0%,100% { transform: translateX(0) scaleY(1); opacity: .5; } 50% { transform: translateX(20px) scaleY(1.4); opacity: .9; } }
+
+.scroll-cue-line { position: absolute; inset: 0; background: #E8A94B; animation: scrollCue 2s ease-in-out infinite; }
+@keyframes scrollCue { 0% { transform: translateY(-100%); } 100% { transform: translateY(100%); } }
+.scroll-cue { animation: bob 2.4s ease-in-out infinite; }
+@keyframes bob { 0%,100% { transform: translate(-50%,0); } 50% { transform: translate(-50%,-6px); } }
+
+/* ============ MARQUEE ============ */
+.marquee { animation: marquee 22s linear infinite; width: max-content; }
+.marquee:hover { animation-play-state: paused; }
+@keyframes marquee { from { transform: translateX(0); } to { transform: translateX(-50%); } }
+
+/* ============ TYPOGRAPHY HELPERS ============ */
+.eyebrow {
+  display: flex; align-items: center; gap: .5rem;
+  font-family: 'Space Mono', monospace; font-size: .72rem; letter-spacing: .3em;
+  text-transform: uppercase; color: #C17A3D; margin-bottom: .75rem;
+}
+.section-title { font-family: 'Fraunces', serif; font-weight: 600; font-size: clamp(1.9rem, 4vw, 3rem); line-height: 1.1; letter-spacing: -0.01em; }
+
+/* ============ GLASS CARD ============ */
+.glass-card {
+  background: rgba(255,255,255,0.55);
+  border: 1px solid rgba(255,255,255,0.4);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  border-radius: 1.75rem;
+  box-shadow: 0 8px 32px 0 rgba(27,18,12,0.10);
+}
+html.dark .glass-card {
+  background: rgba(42,29,20,0.55);
+  border-color: rgba(241,228,207,0.12);
+  box-shadow: 0 8px 32px 0 rgba(0,0,0,0.35);
+}
+
+/* ============ FORMS ============ */
+.form-group label { display: block; font-size: .8rem; font-weight: 600; margin-bottom: .4rem; }
+.form-group input, .form-group textarea {
+  width: 100%; padding: .8rem 1.1rem; border-radius: 1rem;
+  border: 1px solid rgba(74,46,31,0.15); background: rgba(255,255,255,0.6);
+  font-family: inherit; font-size: .9rem; transition: border-color .2s, box-shadow .2s;
+}
+html.dark .form-group input, html.dark .form-group textarea { border-color: rgba(241,228,207,0.15); background: rgba(255,255,255,0.05); color: #F1E4CF; }
+.form-group input:focus, .form-group textarea:focus { outline: none; border-color: #C17A3D; box-shadow: 0 0 0 4px rgba(193,122,61,0.15); }
+
+.stepper { display: flex; align-items: center; gap: .75rem; }
+.stepper-btn {
+  width: 40px; height: 40px; border-radius: 50%; border: 1px solid rgba(74,46,31,0.15);
+  font-size: 1.1rem; font-weight: 700; transition: background .2s;
+}
+.stepper-btn:hover { background: rgba(193,122,61,0.12); }
+.stepper input { text-align: center; max-width: 70px; }
+
+/* ============ MENU FILTERS ============ */
+.menu-filter-btn {
+  padding: .55rem 1.2rem; border-radius: 999px; font-size: .8rem; font-weight: 600;
+  border: 1px solid rgba(74,46,31,0.15); transition: all .25s var(--ease-out-expo);
+  background: transparent;
+}
+html.dark .menu-filter-btn { border-color: rgba(241,228,207,0.18); }
+.menu-filter-btn:hover { background: rgba(193,122,61,0.1); }
+.menu-filter-btn.active { background: #C17A3D; color: #FAF3E7; border-color: #C17A3D; }
+
+/* ============ MENU TICKET CARD (signature element) ============
+   Styled like a café order ticket: dashed perforation, mono price,
+   and a rotated "stamp" badge for popular items — ties the visual
+   language directly back to the act of ordering. */
+.ticket-card {
+  position: relative;
+  background: #FAF3E7;
+  border-radius: 1.25rem;
+  padding: 1.5rem 1.5rem 1.25rem;
+  box-shadow: 0 10px 30px -12px rgba(27,18,12,0.18);
+  transition: transform .4s var(--ease-out-expo), box-shadow .4s var(--ease-out-expo);
+  overflow: hidden;
+}
+html.dark .ticket-card { background: #2A1D14; }
+.ticket-card:hover { transform: translateY(-6px); box-shadow: 0 20px 40px -12px rgba(27,18,12,0.3); }
+.ticket-card::before {
+  content: ''; position: absolute; left: 0; right: 0; bottom: 62px;
+  border-top: 2px dashed rgba(74,46,31,0.2);
+}
+html.dark .ticket-card::before { border-top-color: rgba(241,228,207,0.15); }
+.ticket-card::after {
+  content: ''; position: absolute; bottom: 55px; left: -8px;
+  width: 16px; height: 16px; border-radius: 50%; background: #F1E4CF;
+  box-shadow: calc(100% + 16px) 0 0 #F1E4CF;
+}
+html.dark .ticket-card::after { background: #1B120C; box-shadow: calc(100% + 16px) 0 0 #1B120C; }
+
+.ticket-stamp {
+  position: absolute; top: 14px; right: -30px; background: #C17A3D; color: #FAF3E7;
+  font-family: 'Space Mono', monospace; font-size: .62rem; font-weight: 700;
+  letter-spacing: .15em; text-transform: uppercase; padding: .3rem 2.4rem;
+  transform: rotate(35deg); box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+}
+
+.ticket-img { width: 100%; height: 160px; object-fit: cover; border-radius: .85rem; }
+.ticket-price { font-family: 'Space Mono', monospace; font-weight: 700; }
+
+.qty-control { display: flex; align-items: center; gap: .5rem; }
+.qty-btn { width: 28px; height: 28px; border-radius: 50%; border: 1px solid rgba(74,46,31,0.2); font-weight: 700; transition: background .2s; }
+.qty-btn:hover { background: rgba(193,122,61,0.15); }
+html.dark .qty-btn { border-color: rgba(241,228,207,0.2); }
+
+.add-cart-btn {
+  display: inline-flex; align-items: center; gap: .4rem; font-size: .8rem; font-weight: 700;
+  background: #4A2E1F; color: #FAF3E7; padding: .55rem 1rem; border-radius: 999px;
+  transition: background .25s, transform .25s;
+}
+.add-cart-btn:hover { background: #C17A3D; transform: scale(1.04); }
+.add-cart-btn.added { background: #6E8B5B; }
+
+/* ============ TIMELINE ============ */
+.timeline { display: grid; grid-template-columns: repeat(4, 1fr); gap: 1.5rem; position: relative; }
+.timeline::before { content:''; position:absolute; top: 14px; left: 0; right: 0; height: 2px; background: rgba(193,122,61,0.25); }
+.timeline-item { position: relative; padding-top: 2rem; text-align: center; }
+.timeline-item::before { content:''; position:absolute; top: 5px; left: 50%; transform: translateX(-50%); width: 18px; height: 18px; border-radius: 50%; background: #C17A3D; border: 3px solid #FAF3E7; }
+html.dark .timeline-item::before { border-color: #1B120C; }
+.timeline-year { font-family: 'Space Mono', monospace; font-weight: 700; color: #C17A3D; }
+.timeline-text { font-size: .85rem; margin-top: .4rem; opacity: .8; }
+@media (max-width: 767px) {
+  .timeline { grid-template-columns: 1fr; gap: 2.2rem; }
+  .timeline::before { top: 0; bottom: 0; left: 14px; width: 2px; height: auto; right: auto; }
+  .timeline-item { text-align: left; padding-left: 2.5rem; padding-top: 0; }
+  .timeline-item::before { left: 14px; top: 4px; transform: translateX(-50%); }
+}
+
+/* ============ STAFF ============ */
+.staff-card img { width: 100%; height: 220px; object-fit: cover; border-radius: 1.5rem; }
+
+/* ============ EVENTS / BLOG CARDS ============ */
+.event-card, .blog-card {
+  background: rgba(255,255,255,0.5); border-radius: 1.5rem; overflow: hidden;
+  border: 1px solid rgba(74,46,31,0.08); transition: transform .4s var(--ease-out-expo);
+}
+html.dark .event-card, html.dark .blog-card { background: rgba(241,228,207,0.04); border-color: rgba(241,228,207,0.08); }
+.event-card:hover, .blog-card:hover { transform: translateY(-6px); }
+.event-card img, .blog-card img { width: 100%; height: 190px; object-fit: cover; }
+.event-book-btn {
+  display: inline-flex; font-size: .8rem; font-weight: 700; color: #C17A3D;
+  border-bottom: 1.5px solid #C17A3D; padding-bottom: 2px; transition: gap .2s;
+}
+.event-book-btn:hover { color: #8C4A2F; }
+
+/* ============ GALLERY MASONRY ============ */
+.masonry { columns: 1; column-gap: 1rem; }
+@media (min-width: 640px) { .masonry { columns: 2; } }
+@media (min-width: 1024px) { .masonry { columns: 3; } }
+.masonry-item { break-inside: avoid; margin-bottom: 1rem; border-radius: 1.25rem; overflow: hidden; position: relative; cursor: zoom-in; }
+.masonry-item img { width: 100%; display: block; transition: transform .6s var(--ease-out-expo); }
+.masonry-item:hover img { transform: scale(1.08); }
+.masonry-item .gallery-cap {
+  position: absolute; inset-inline: 0; bottom: 0; padding: .8rem 1rem;
+  background: linear-gradient(0deg, rgba(27,18,12,0.75), transparent);
+  color: #FAF3E7; font-size: .75rem; opacity: 0; transition: opacity .3s;
+}
+.masonry-item:hover .gallery-cap { opacity: 1; }
+
+/* ============ INSTAGRAM TILES ============ */
+.ig-tile { display:block; aspect-ratio: 1/1; overflow: hidden; border-radius: .9rem; }
+.ig-tile img { width: 100%; height: 100%; object-fit: cover; transition: transform .5s var(--ease-out-expo); }
+.ig-tile:hover img { transform: scale(1.1); }
+
+/* ============ TESTIMONIALS ============ */
+.testimonial-slide {
+  position: absolute; inset: 0; opacity: 0; transform: translateY(16px);
+  transition: opacity .6s var(--ease-out-expo), transform .6s var(--ease-out-expo);
+  pointer-events: none;
+}
+.testimonial-slide.active { opacity: 1; transform: translateY(0); pointer-events: auto; position: relative; }
+.testimonial-dot { width: 8px; height: 8px; border-radius: 50%; background: rgba(250,243,231,0.35); transition: background .3s, width .3s; }
+.testimonial-dot.active { background: #E8A94B; width: 24px; border-radius: 999px; }
+.stars i { color: #E8A94B; }
+
+/* ============ FAQ ============ */
+.faq-item { border: 1px solid rgba(74,46,31,0.1); border-radius: 1.25rem; overflow: hidden; }
+html.dark .faq-item { border-color: rgba(241,228,207,0.12); }
+.faq-question {
+  width: 100%; text-align: left; padding: 1.1rem 1.4rem; font-weight: 600;
+  display: flex; justify-content: space-between; align-items: center;
+}
+.faq-question i { transition: transform .3s var(--ease-out-expo); color: #C17A3D; }
+.faq-item.open .faq-question i { transform: rotate(180deg); }
+.faq-answer { max-height: 0; overflow: hidden; transition: max-height .4s var(--ease-out-expo); padding: 0 1.4rem; }
+.faq-answer p { padding-bottom: 1.1rem; font-size: .9rem; opacity: .8; }
+.faq-item.open .faq-answer { max-height: 200px; }
+
+/* ============ MAP PLACEHOLDER ============ */
+.map-placeholder { background: repeating-linear-gradient(45deg, rgba(193,122,61,0.08), rgba(193,122,61,0.08) 10px, rgba(193,122,61,0.03) 10px, rgba(193,122,61,0.03) 20px); border: 1px dashed rgba(193,122,61,0.4); }
+
+.social-icon { width: 40px; height: 40px; border-radius: 50%; display: grid; place-items: center; background: rgba(193,122,61,0.12); color: #C17A3D; transition: background .2s, transform .2s; }
+.social-icon:hover { background: #C17A3D; color: #FAF3E7; transform: translateY(-2px); }
+
+/* ============ FULFILMENT TOGGLE (cart) ============ */
+.fulfil-btn { padding: .6rem; border-radius: .9rem; font-size: .8rem; font-weight: 700; border: 1px solid rgba(74,46,31,0.15); transition: all .2s; }
+html.dark .fulfil-btn { border-color: rgba(241,228,207,0.15); }
+.fulfil-btn.active { background: #4A2E1F; color: #FAF3E7; border-color: #4A2E1F; }
+
+/* ============ CHAT BUBBLES ============ */
+.chat-bubble { max-width: 85%; padding: .6rem .9rem; border-radius: 1rem; }
+.chat-bubble.bot { background: rgba(74,46,31,0.08); border-bottom-left-radius: .25rem; }
+html.dark .chat-bubble.bot { background: rgba(241,228,207,0.08); }
+.chat-bubble.user { background: #C17A3D; color: #FAF3E7; margin-left: auto; border-bottom-right-radius: .25rem; }
+
+/* ============ MISC ============ */
+::selection { background: #E8A94B; color: #1B120C; }
+#cart-drawer.open { transform: translateX(0); }
+
+</style>
+<style>
+  body { font-family: 'Manrope', sans-serif; }
+  .stat-card { background: rgba(255,255,255,0.6); border: 1px solid rgba(74,46,31,0.08); border-radius: 1.5rem; padding: 1.5rem; }
+  html.dark .stat-card { background: rgba(241,228,207,0.05); border-color: rgba(241,228,207,0.1); }
+  .side-link { display:flex; align-items:center; gap:.75rem; padding:.7rem 1rem; border-radius: .9rem; font-weight:600; font-size:.875rem; color: inherit; opacity:.7; transition: all .2s; }
+  .side-link:hover, .side-link.active { opacity:1; background: rgba(193,122,61,0.12); color:#C17A3D; }
+  .panel { display:none; }
+  .panel.active { display:block; }
+  table { width:100%; border-collapse: collapse; font-size:.875rem; }
+  th { text-align:left; padding: .75rem 1rem; font-family:'Space Mono',monospace; font-size:.68rem; text-transform:uppercase; letter-spacing:.08em; opacity:.55; border-bottom: 1px solid rgba(74,46,31,0.1); }
+  html.dark th { border-color: rgba(241,228,207,0.1); }
+  td { padding: .85rem 1rem; border-bottom: 1px solid rgba(74,46,31,0.06); }
+  html.dark td { border-color: rgba(241,228,207,0.06); }
+  .badge { font-size:.68rem; font-weight:700; padding:.2rem .6rem; border-radius:999px; }
+  .badge-green { background: rgba(110,139,91,0.15); color:#4d6b3b; }
+  .badge-amber { background: rgba(232,169,75,0.2); color:#946015; }
+  .badge-gray { background: rgba(74,46,31,0.1); color:#4A2E1F; }
+</style>
+</head>
+<body class="bg-cream dark:bg-espresso text-bark dark:text-parchment transition-colors">
+
+<div class="flex min-h-screen">
+  <!-- Sidebar -->
+  <aside class="w-64 shrink-0 hidden md:flex flex-col border-r border-bark/10 dark:border-parchment/10 p-6">
+    <a href="index.html" class="flex items-center gap-2 mb-10">
+      <span class="w-9 h-9 rounded-full bg-caramel flex items-center justify-center text-cream font-display font-semibold text-sm">E&O</span>
+      <span class="font-display font-semibold text-lg">Staff Panel</span>
+    </a>
+    <nav class="flex flex-col gap-1">
+      <button class="side-link active" data-panel="overview"><i class="fa-solid fa-chart-line w-4"></i> Overview</button>
+      <button class="side-link" data-panel="menu"><i class="fa-solid fa-mug-saucer w-4"></i> Menu Items</button>
+      <button class="side-link" data-panel="reservations"><i class="fa-solid fa-calendar-check w-4"></i> Reservations</button>
+      <button class="side-link" data-panel="orders"><i class="fa-solid fa-receipt w-4"></i> Orders</button>
+      <button class="side-link" data-panel="gallery"><i class="fa-solid fa-images w-4"></i> Gallery</button>
+      <button class="side-link" data-panel="inventory"><i class="fa-solid fa-boxes-stacked w-4"></i> Inventory</button>
+    </nav>
+    <a href="index.html" class="mt-auto side-link"><i class="fa-solid fa-arrow-left w-4"></i> Back to site</a>
+  </aside>
+
+  <!-- Main -->
+  <main class="flex-1 p-6 md:p-10 max-w-6xl">
+    <div class="flex items-center justify-between mb-8">
+      <div>
+        <p class="font-mono text-xs uppercase tracking-widest text-caramel">Demo Data &middot; Not Connected to a Backend</p>
+        <h1 id="panel-title" class="font-display font-semibold text-3xl mt-1">Overview</h1>
+      </div>
+      <button id="admin-theme-toggle" class="w-10 h-10 rounded-full grid place-items-center bg-bark/10 dark:bg-parchment/10">
+        <i class="fa-solid fa-moon text-sm dark:hidden"></i>
+        <i class="fa-solid fa-sun text-sm hidden dark:inline"></i>
+      </button>
+    </div>
+
+    <!-- OVERVIEW -->
+    <section id="panel-overview" class="panel active space-y-8">
+      <div class="grid sm:grid-cols-2 lg:grid-cols-4 gap-5">
+        <div class="stat-card"><p class="text-xs opacity-60 font-mono uppercase">Today's Revenue</p><p class="font-display text-3xl font-semibold mt-2">$1,284</p><p class="text-xs text-green-600 mt-1">↑ 12% vs yesterday</p></div>
+        <div class="stat-card"><p class="text-xs opacity-60 font-mono uppercase">Orders Today</p><p class="font-display text-3xl font-semibold mt-2">96</p><p class="text-xs text-green-600 mt-1">↑ 8% vs yesterday</p></div>
+        <div class="stat-card"><p class="text-xs opacity-60 font-mono uppercase">Reservations Today</p><p class="font-display text-3xl font-semibold mt-2">21</p><p class="text-xs opacity-60 mt-1">6 pending confirmation</p></div>
+        <div class="stat-card"><p class="text-xs opacity-60 font-mono uppercase">Current Occupancy</p><p class="font-display text-3xl font-semibold mt-2">18/40</p><p class="text-xs text-amber-600 mt-1">Moderate</p></div>
+      </div>
+
+      <div class="stat-card">
+        <p class="font-display font-semibold text-lg mb-4">Revenue — Last 7 Days</p>
+        <div class="flex items-end gap-3 h-40">
+          <div class="flex-1 bg-caramel/70 rounded-t-lg" style="height:55%"></div>
+          <div class="flex-1 bg-caramel/70 rounded-t-lg" style="height:70%"></div>
+          <div class="flex-1 bg-caramel/70 rounded-t-lg" style="height:45%"></div>
+          <div class="flex-1 bg-caramel/70 rounded-t-lg" style="height:80%"></div>
+          <div class="flex-1 bg-caramel/70 rounded-t-lg" style="height:65%"></div>
+          <div class="flex-1 bg-ember rounded-t-lg" style="height:95%"></div>
+          <div class="flex-1 bg-caramel/70 rounded-t-lg" style="height:60%"></div>
+        </div>
+        <div class="flex justify-between text-xs font-mono opacity-50 mt-2">
+          <span>Mon</span><span>Tue</span><span>Wed</span><span>Thu</span><span>Fri</span><span>Sat</span><span>Sun</span>
+        </div>
+      </div>
+
+      <p class="text-xs opacity-50">This dashboard uses static placeholder data to demonstrate layout and UX. Wire it to your own backend/API to make it live.</p>
+    </section>
+
+    <!-- MENU ITEMS -->
+    <section id="panel-menu" class="panel">
+      <div class="flex justify-between items-center mb-4">
+        <p class="text-sm opacity-70">Manage what shows up on the public menu.</p>
+        <button class="bg-caramel text-cream text-sm font-semibold px-4 py-2.5 rounded-full"><i class="fa-solid fa-plus mr-1"></i> Add Item</button>
+      </div>
+      <div class="stat-card !p-0 overflow-x-auto">
+        <table>
+          <thead><tr><th>Item</th><th>Category</th><th>Price</th><th>Status</th><th></th></tr></thead>
+          <tbody id="admin-menu-table"></tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- RESERVATIONS -->
+    <section id="panel-reservations" class="panel">
+      <p class="text-sm opacity-70 mb-4">Today's incoming table reservations.</p>
+      <div class="stat-card !p-0 overflow-x-auto">
+        <table>
+          <thead><tr><th>Guest</th><th>Date</th><th>Time</th><th>Guests</th><th>Status</th></tr></thead>
+          <tbody>
+            <tr><td>Jordan Blake</td><td>2026-07-06</td><td>18:30</td><td>2</td><td><span class="badge badge-green">Confirmed</span></td></tr>
+            <tr><td>Amara Diallo</td><td>2026-07-06</td><td>19:00</td><td>4</td><td><span class="badge badge-amber">Pending</span></td></tr>
+            <tr><td>Liu Wei</td><td>2026-07-06</td><td>12:15</td><td>2</td><td><span class="badge badge-green">Confirmed</span></td></tr>
+            <tr><td>Noah Fischer</td><td>2026-07-07</td><td>09:00</td><td>6</td><td><span class="badge badge-gray">Waitlist</span></td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- ORDERS -->
+    <section id="panel-orders" class="panel">
+      <p class="text-sm opacity-70 mb-4">Recent pickup and delivery orders.</p>
+      <div class="stat-card !p-0 overflow-x-auto">
+        <table>
+          <thead><tr><th>Order</th><th>Customer</th><th>Type</th><th>Total</th><th>Status</th></tr></thead>
+          <tbody>
+            <tr><td class="font-mono">#EO-48213</td><td>Priya N.</td><td>Delivery</td><td>$24.50</td><td><span class="badge badge-amber">Preparing</span></td></tr>
+            <tr><td class="font-mono">#EO-48212</td><td>Daniel K.</td><td>Pickup</td><td>$11.00</td><td><span class="badge badge-green">Ready</span></td></tr>
+            <tr><td class="font-mono">#EO-48211</td><td>Wanjiru M.</td><td>Delivery</td><td>$32.90</td><td><span class="badge badge-gray">Delivered</span></td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- GALLERY -->
+    <section id="panel-gallery" class="panel">
+      <div class="flex justify-between items-center mb-4">
+        <p class="text-sm opacity-70">Manage photos shown in the public gallery.</p>
+        <button class="bg-caramel text-cream text-sm font-semibold px-4 py-2.5 rounded-full"><i class="fa-solid fa-upload mr-1"></i> Upload</button>
+      </div>
+      <div id="admin-gallery-grid" class="grid grid-cols-3 sm:grid-cols-4 lg:grid-cols-6 gap-3"></div>
+    </section>
+
+    <!-- INVENTORY -->
+    <section id="panel-inventory" class="panel">
+      <p class="text-sm opacity-70 mb-4">Rough stock overview (demo figures).</p>
+      <div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-5">
+        <div class="stat-card"><p class="font-semibold">Ethiopian Yirgacheffe</p><p class="text-xs opacity-60 mt-1">Green beans</p><div class="w-full h-2 bg-bark/10 dark:bg-parchment/10 rounded-full mt-3"><div class="h-2 bg-caramel rounded-full" style="width:72%"></div></div><p class="text-xs mt-1 opacity-60">72% · 36kg left</p></div>
+        <div class="stat-card"><p class="font-semibold">Oat Milk</p><p class="text-xs opacity-60 mt-1">Fridge stock</p><div class="w-full h-2 bg-bark/10 dark:bg-parchment/10 rounded-full mt-3"><div class="h-2 bg-amber-500 rounded-full" style="width:24%"></div></div><p class="text-xs mt-1 opacity-60">24% · Reorder soon</p></div>
+        <div class="stat-card"><p class="font-semibold">Sourdough Loaves</p><p class="text-xs opacity-60 mt-1">Baked daily</p><div class="w-full h-2 bg-bark/10 dark:bg-parchment/10 rounded-full mt-3"><div class="h-2 bg-green-600 rounded-full" style="width:90%"></div></div><p class="text-xs mt-1 opacity-60">90% · Fresh batch this morning</p></div>
+      </div>
+    </section>
+  </main>
+</div>
+
+<script>
+  // Sidebar panel switching
+  const links = document.querySelectorAll('.side-link[data-panel]');
+  links.forEach(link => link.addEventListener('click', () => {
+    links.forEach(l => l.classList.remove('active'));
+    link.classList.add('active');
+    document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+    document.getElementById('panel-' + link.dataset.panel).classList.add('active');
+    document.getElementById('panel-title').textContent = link.textContent.trim();
+  }));
+
+  // Theme toggle (shares the same localStorage key as the main site)
+  const themeBtn = document.getElementById('admin-theme-toggle');
+  if (localStorage.getItem('eo-theme') === 'dark') document.documentElement.classList.add('dark');
+  themeBtn.addEventListener('click', () => {
+    document.documentElement.classList.toggle('dark');
+    localStorage.setItem('eo-theme', document.documentElement.classList.contains('dark') ? 'dark' : 'light');
+  });
+
+  // Demo menu table, mirrors app.js MENU_DATA shape loosely
+  const demoMenu = [
+    { name: 'Single-Origin Espresso', cat: 'Coffee', price: '$3.50', status: 'Active' },
+    { name: 'Spiced Chai Latte', cat: 'Tea', price: '$4.50', status: 'Active' },
+    { name: 'Sourdough Avocado Toast', cat: 'Breakfast', price: '$8.50', status: 'Active' },
+    { name: 'Braised Short Rib Plate', cat: 'Dinner', price: '$18.00', status: 'Active' },
+    { name: 'Cardamom Honey Latte', cat: 'Seasonal', price: '$5.50', status: 'Seasonal' },
+    { name: 'Spiced Pumpkin Scone', cat: 'Seasonal', price: '$4.00', status: 'Out of Stock' },
+  ];
+  document.getElementById('admin-menu-table').innerHTML = demoMenu.map(m => `
+    <tr>
+      <td class="font-semibold">${m.name}</td>
+      <td>${m.cat}</td>
+      <td class="font-mono">${m.price}</td>
+      <td><span class="badge ${m.status === 'Active' ? 'badge-green' : m.status === 'Seasonal' ? 'badge-amber' : 'badge-gray'}">${m.status}</span></td>
+      <td class="text-right"><button class="opacity-60 hover:opacity-100"><i class="fa-solid fa-pen"></i></button></td>
+    </tr>
+  `).join('');
+
+  // Demo gallery grid
+  const demoGallery = [
+    'https://images.unsplash.com/photo-1447933601403-0c6688de566e?w=300&q=70',
+    'https://images.unsplash.com/photo-1498804103079-a6351b050096?w=300&q=70',
+    'https://images.unsplash.com/photo-1525351484163-7529414344d8?w=300&q=70',
+    'https://images.unsplash.com/photo-1521017432531-fbd92d768814?w=300&q=70',
+    'https://images.unsplash.com/photo-1495474472287-4d71bcdd2085?w=300&q=70',
+    'https://images.unsplash.com/photo-1453614512568-c4024d13c247?w=300&q=70',
+  ];
+  document.getElementById('admin-gallery-grid').innerHTML = demoGallery.map(src => `
+    <div class="aspect-square rounded-xl overflow-hidden relative group">
+      <img src="${src}" class="w-full h-full object-cover" loading="lazy">
+      <button class="absolute inset-0 bg-espresso/50 opacity-0 group-hover:opacity-100 transition-opacity grid place-items-center text-cream">
+        <i class="fa-solid fa-trash-can"></i>
+      </button>
+    </div>
+  `).join('');
+</script>
+</body>
+</html>
