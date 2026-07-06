@@ -83,28 +83,8 @@ body { -webkit-font-smoothing: antialiased; }
 #loader { transition: opacity .6s var(--ease-out-expo), visibility .6s; }
 #loader.loader-hidden { opacity: 0; visibility: hidden; pointer-events: none; }
 
-.loader-cup { position: relative; width: 70px; height: 70px; }
-.loader-cup-body {
-  position: absolute; bottom: 0; left: 50%; transform: translateX(-50%);
-  width: 60px; height: 44px; border: 4px solid #E8A94B; border-top: none;
-  border-radius: 0 0 26px 26px;
-  background: linear-gradient(180deg, #C17A3D 0%, #4A2E1F 100%);
-  animation: cupFill 1.6s ease-in-out infinite;
-}
-@keyframes cupFill { 0%,100% { opacity: .6 } 50% { opacity: 1 } }
-.loader-steam {
-  position: absolute; bottom: 44px; width: 3px; height: 22px; border-radius: 3px;
-  background: rgba(250,243,231,0.6); left: 50%;
-  animation: steamRise 1.8s ease-in-out infinite;
-}
-.loader-steam.s1 { transform: translateX(-14px); animation-delay: 0s; }
-.loader-steam.s2 { transform: translateX(0); animation-delay: .3s; }
-.loader-steam.s3 { transform: translateX(14px); animation-delay: .6s; }
-@keyframes steamRise {
-  0% { opacity: 0; transform: translate(0,0) scaleY(0.6); }
-  40% { opacity: .8; }
-  100% { opacity: 0; transform: translate(6px,-30px) scaleY(1.3); }
-}
+.loader-logo { width: 220px; max-width: 60vw; height: auto; animation: logoPulse 1.8s ease-in-out infinite; }
+@keyframes logoPulse { 0%,100% { opacity: .7; transform: scale(.97); } 50% { opacity: 1; transform: scale(1); } }
 
 /* ============ CURSOR EFFECTS ============ */
 .cursor-dot, .cursor-ring {
@@ -414,13 +394,8 @@ html.dark .chat-bubble.bot { background: rgba(241,228,207,0.08); }
 <body class="font-body bg-cream text-bark dark:bg-espresso dark:text-parchment transition-colors duration-500">
 
 <!-- ================= LOADING SCREEN ================= -->
-<div id="loader" class="fixed inset-0 z-[100] flex flex-col items-center justify-center bg-espresso text-cream">
-  <div class="loader-cup" aria-hidden="true">
-    <div class="loader-steam s1"></div>
-    <div class="loader-steam s2"></div>
-    <div class="loader-steam s3"></div>
-    <div class="loader-cup-body"></div>
-  </div>
+<div id="loader" class="fixed inset-0 z-[100] flex flex-col items-center justify-center bg-cream text-bark">
+  <img src="data:image/jpeg;base64,PASTE_BASE64_HERE" alt="Da Vinci Café & Restaurant" class="loader-logo">
   <p class="mt-6 font-mono text-xs tracking-[0.3em] uppercase text-ember">Brewing your experience</p>
 </div>
 
@@ -984,11 +959,11 @@ html.dark .chat-bubble.bot { background: rgba(241,228,207,0.08); }
         <div class="glass-card p-8 space-y-5">
           <div class="flex items-start gap-4">
             <i class="fa-solid fa-location-dot text-caramel mt-1"></i>
-            <p>14 Oak Street, Kampala, Uganda</p>
+            <p>14 Shell Gulu Highway Opposite Stanbic Bank, Gulu, 256 Uganda</p>
           </div>
           <div class="flex items-start gap-4">
             <i class="fa-solid fa-phone text-caramel mt-1"></i>
-            <p>+256 700 000 000</p>
+            <p>+256 789 088 555</p>+256 709 755 349</p>
           </div>
           <div class="flex items-start gap-4">
             <i class="fa-solid fa-envelope text-caramel mt-1"></i>
@@ -996,7 +971,7 @@ html.dark .chat-bubble.bot { background: rgba(241,228,207,0.08); }
           </div>
           <div class="flex items-start gap-4">
             <i class="fa-solid fa-clock text-caramel mt-1"></i>
-            <p>Mon–Fri 07:00–20:00 &middot; Sat 08:00–22:00 &middot; Sun 08:00–18:00</p>
+            <p>Open 24/7</p>
           </div>
           <div class="flex gap-3 pt-2">
             <a href="#" aria-label="Instagram" class="social-icon"><i class="fa-brands fa-instagram"></i></a>
@@ -1016,7 +991,7 @@ html.dark .chat-bubble.bot { background: rgba(241,228,207,0.08); }
   <div class="max-w-7xl mx-auto grid sm:grid-cols-2 lg:grid-cols-4 gap-10">
     <div>
       <span class="font-display font-semibold text-xl text-cream">Da Vinci <span class="text-caramel">Café & Restaurant</span> 
-      <p class="mt-3 text-sm max-w-xs">Small-batch coffee, honest food, and a room built for slowing down.</p>
+      <p class="mt-3 text-sm max-w-xs">Elevating Every Dining Experience..</p>
     </div>
     <div>
       <p class="font-mono text-xs uppercase tracking-widest text-ember mb-4">Explore</p>
@@ -1037,8 +1012,8 @@ html.dark .chat-bubble.bot { background: rgba(241,228,207,0.08); }
     </div>
     <div>
       <p class="font-mono text-xs uppercase tracking-widest text-ember mb-4">Visit</p>
-      <p class="text-sm">14 Oak Street, Kampala, Uganda</p>
-      <p class="text-sm mt-1">+256 700 000 000</p>
+      <p class="text-sm">https://maps.google.com/maps?saddr=&daddr=Shell%20Gulu%20Highway%20Opposite%20Stanbic%20Bank,%20Gulu%20256%20Uganda@2.769518,32.298065</p>
+      <p class="text-sm mt-1">+256 789 088 555, +256 709 755 349</p>
     </div>
   </div>
   <div class="max-w-7xl mx-auto mt-10 pt-6 border-t border-parchment/10 text-xs flex flex-col sm:flex-row justify-between gap-2">
