@@ -428,6 +428,10 @@ html.dark .chat-bubble.bot { background: rgba(241,228,207,0.08); }
 <!-- ================= SCROLL PROGRESS BAR ================= -->
 <div id="scroll-progress" class="fixed top-0 left-0 h-[3px] bg-gradient-to-r from-caramel to-ember z-[70]" style="width:0%"></div>
 
+<!-- ================= CUSTOM CURSOR (desktop only) ================= -->
+<div id="cursor-dot" class="cursor-dot" aria-hidden="true"></div>
+<div id="cursor-ring" class="cursor-ring" aria-hidden="true"></div>
+
 <!-- ================= SKIP LINK (accessibility) ================= -->
 <a href="#main" class="sr-only focus:not-sr-only focus:fixed focus:top-2 focus:left-2 focus:z-[90] focus:bg-caramel focus:text-white focus:px-4 focus:py-2 focus:rounded-full">Skip to content</a>
 
@@ -436,7 +440,7 @@ html.dark .chat-bubble.bot { background: rgba(241,228,207,0.08); }
   <nav class="max-w-7xl mx-auto flex items-center justify-between px-5 md:px-8 py-4">
     <a href="#home" class="flex items-center gap-2 group" aria-label="DaVinci Cafe & Restaurant">
       <span class="w-9 h-9 rounded-full bg-caramel flex items-center justify-center text-cream font-display font-semibold text-sm shadow-warm group-hover:rotate-12 transition-transform duration-300">DCR</span>
-      <span class="font-display font-semibold text-lg tracking-tight nav-text">Da Vinci <span class="text-caramel">Café & Restaurant</span>
+      <span class="font-display font-semibold text-lg tracking-tight nav-text">Da Vinci <span class="text-caramel">Café & Restaurant</span></span>
     </a>
 
     <ul class="hidden lg:flex items-center gap-7 font-medium text-sm nav-text">
@@ -741,6 +745,8 @@ html.dark .chat-bubble.bot { background: rgba(241,228,207,0.08); }
             <li class="flex justify-between"><span>Mon – Sun</span><span>24/7</span></li>
           </ul>
         </div>
+      </div>
+
       <form id="reservation-form" class="glass-card p-8 reveal-up" style="transition-delay:.1s" novalidate>
         <div class="grid sm:grid-cols-2 gap-5">
           <div class="form-group">
@@ -827,7 +833,7 @@ html.dark .chat-bubble.bot { background: rgba(241,228,207,0.08); }
           <div class="p-6">
             <p class="text-xs font-mono uppercase tracking-widest text-caramel">First Saturday of the Month</p>
             <h3 class="font-display font-semibold text-xl mt-2">Coffee Tasting & Cupping</h3>
-            <p class="text-sm mt-2 text-bark/70 dark:text-parchment/70">Taste four origins side by side, guided by our head Barista.</p>
+            <p class="text-sm mt-2 text-bark/70 dark:text-parchment/70">Taste four origins side by side, guided by our head roaster.</p>
             <button class="event-book-btn mt-4" data-event="Coffee Tasting">Reserve a Seat</button>
           </div>
         </div>
@@ -1000,7 +1006,7 @@ html.dark .chat-bubble.bot { background: rgba(241,228,207,0.08); }
           </div>
           <div class="flex items-start gap-4">
             <i class="fa-solid fa-phone text-caramel mt-1"></i>
-            <p>+256 789 088 555</p>+256 709 755 349</p>
+            <p>+256 789 088 555 / +256 709 755 349</p>
           </div>
           <div class="flex items-start gap-4">
             <i class="fa-solid fa-envelope text-caramel mt-1"></i>
@@ -1027,7 +1033,7 @@ html.dark .chat-bubble.bot { background: rgba(241,228,207,0.08); }
 <footer class="bg-espresso text-parchment/80 py-14 px-6">
   <div class="max-w-7xl mx-auto grid sm:grid-cols-2 lg:grid-cols-4 gap-10">
     <div>
-      <span class="font-display font-semibold text-xl text-cream">Da Vinci <span class="text-caramel">Café & Restaurant</span> 
+      <span class="font-display font-semibold text-xl text-cream">Da Vinci <span class="text-caramel">Café & Restaurant</span></span>
       <p class="mt-3 text-sm max-w-xs">Elevating Every Dining Experience..</p>
     </div>
     <div>
