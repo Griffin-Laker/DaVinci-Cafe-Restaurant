@@ -407,7 +407,7 @@ html.dark .chat-bubble.bot { background: rgba(241,228,207,0.08); }
 <!-- ================= LOADING SCREEN ================= -->
 <div id="loader" class="fixed inset-0 z-[100] flex flex-col items-center justify-center bg-cream text-bark">
   <img src="images/davinci-logo.png" alt="Da Vinci Café & Restaurant" class="loader-logo">
-  <p class="mt-6 font-mono text-xs tracking-[0.3em] uppercase text-ember loader-caption">Fresh Flavors. Great Moments.</p>
+  <p class="mt-6 font-mono text-xs tracking-[0.3em] uppercase text-ember loader-caption">DaVinci Cafe and Restaurant</p>
 </div>
 
 <!-- ================= SCROLL PROGRESS BAR ================= -->
@@ -1272,10 +1272,10 @@ const DELIVERY_FEE = 3.5;
 /* ======================= 3. LOADER ======================= */
 function initLoader() {
   window.addEventListener('load', () => {
-    setTimeout(() => document.getElementById('loader').classList.add('loader-hidden'), 500);
+    setTimeout(() => document.getElementById('loader').classList.add('loader-hidden'), 5000);
   });
   // Fallback in case 'load' already fired
-  setTimeout(() => document.getElementById('loader')?.classList.add('loader-hidden'), 2500);
+  setTimeout(() => document.getElementById('loader')?.classList.add('loader-hidden'), 5000);
 }
 
 /* ======================= 4. CUSTOM CURSOR ======================= */
